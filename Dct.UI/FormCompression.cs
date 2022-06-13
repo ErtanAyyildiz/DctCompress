@@ -211,5 +211,11 @@ namespace Dct.UI
                 formUncompress.ShowDialog();
             }
         }
+
+        void BtnAbout_Click(object sender, EventArgs e)
+        {
+            About about = new About();
+            about.ShowDialog();
+        }
     }
 }

@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Dct.UI")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Dct Compression")]
+[assembly: AssemblyDescription("DCT algoritması ile JPEG sıkıştırma uygulaması.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("HP")]
-[assembly: AssemblyProduct("Dct.UI")]
-[assembly: AssemblyCopyright("Copyright © HP 2022")]
+[assembly: AssemblyCompany("Karadeniz Teknik Üniversitesi")]
+[assembly: AssemblyProduct("330205")]
+[assembly: AssemblyCopyright("Copyright © Ertan AYYILDIZ 2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
