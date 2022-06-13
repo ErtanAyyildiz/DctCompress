@@ -117,7 +117,7 @@ namespace Dct.Core
                     int[] Yzig = ApplyZigZag(YdctBlocks[x, y]);
 
 
-                    int[] Yencoded = RunLengthEncode(Yzig);
+                    int[] Yencoded = LengthEncode(Yzig);
                     YSaveBuffer.Add(Yencoded.Length);
                     for (int i = 0; i < Yencoded.Length; i++)
                     {
@@ -134,8 +134,8 @@ namespace Dct.Core
                     Cbzig = ApplyZigZag(CbdctBlocks[x, y]);
                     Crzig = ApplyZigZag(CrdctBlocks[x, y]);
 
-                    Cbencoded = RunLengthEncode(Cbzig);
-                    Crencoded = RunLengthEncode(Crzig);
+                    Cbencoded = LengthEncode(Cbzig);
+                    Crencoded = LengthEncode(Crzig);
 
                     //first save the length of the run length, so we know how far to read later
                     CbSaveBuffer.Add(Cbencoded.Length);
@@ -418,9 +418,9 @@ namespace Dct.Core
         }
 
         /*
-        Run length encodes an int array. uses 255 as the key, as none of the quantized values get that high.
+        çalıştırma uzunluğunu kodlar Quantization(niceleme) value 255'i kullanır.
             */
-        public int[] RunLengthEncode(int[] array)
+        public int[] LengthEncode(int[] array)
         {
             int[] buffer = new int[256];
             int pos = 0;
@@ -462,7 +462,7 @@ namespace Dct.Core
         }
 
         /*
-        undoes run length encoding, extending the compressed array
+        Sıkıştırılmış diziyi çözer.
             */
         public int[] UndoRunlengthEncoding(int[] array)
         {
@@ -587,12 +587,12 @@ namespace Dct.Core
         }
 
         /*
-        Undo each of the compression steps
+        Sıkıştırılmış veriyi çözer.
             */
         public void Decompress(List<List<int>> YencodedList, List<List<int>> CbencodedList, List<List<int>> CrencodedList, int width, int height)
         {
-            int horizontalBlocks = (int)Math.Ceiling((double)width / 8);//amount of full 8x8 blocks will fit horizontally
-            int verticalBlocks = (int)Math.Ceiling((double)height / 8);//amount of full 8x8 blocks will fit vertically
+            int horizontalBlocks = (int)Math.Ceiling((double)width / 8);//8x8 blokları yatay'da sığdırma.
+            int verticalBlocks = (int)Math.Ceiling((double)height / 8);//8x8 blokları dikeyde'da sığdırma.
 
             Block[,] YpostBlocks = new Block[horizontalBlocks, verticalBlocks];
             Block[,] CbpostBlocks = new Block[horizontalBlocks, verticalBlocks];
@@ -668,7 +668,8 @@ namespace Dct.Core
         }
 
         /*
-        Converts my 2d lists to 1d arrays
+        2D listeleri 1D dizilere dönüştürür
+
             */
         public int[] Convert2dListToArray(List<List<int>> list, int pos)
         {
@@ -682,19 +683,13 @@ namespace Dct.Core
 
             return array;
         }
-
-
-        /*
-        compresses a pframe
-            */
+      
         public void OpenSavedFile(string filename)
         {
             byte[] savedData = FileFunctions.OpenCompressed(filename);
             DecodeSaveArray(savedData);
         }
 
-        /*
-        Decodes an array of saved data
-            */
+   
     }
 }
