@@ -12,7 +12,7 @@
 
         public short Red
         {
-            get => red; 
+            get => red;
             set
             {
                 if (value < 0) value = 0;
@@ -24,7 +24,7 @@
         }
         public short Blue
         {
-            get => blue; 
+            get => blue;
             set
             {
                 if (value < 0) value = 0;
@@ -36,7 +36,7 @@
         }
         public short Green
         {
-            get => green; 
+            get => green;
             set
             {
                 if (value < 0) value = 0;

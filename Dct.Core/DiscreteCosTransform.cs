@@ -259,7 +259,7 @@ namespace Dct.Core
         /*
         Creates a bitmap from an array of 8*8 blocks.
             */
-       
+
 
         /*
         Divides the values of the block by a passed quantization table, and returns the outcome
