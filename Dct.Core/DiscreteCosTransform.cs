@@ -33,7 +33,7 @@ namespace Dct.Core
         public double[,] CrImage { get => crImage; set => crImage = value; }
         public double[,] CbImage { get => cbImage; set => cbImage = value; }
 
-        public Block GenerateBlock(double[,] fullSize, int xPosition, int yPosition)
+        public Block CreateBlock(double[,] fullSize, int xPosition, int yPosition)
         {
             Block block = new Block();
 
@@ -80,13 +80,13 @@ namespace Dct.Core
             {
                 for (int x = 0; x < horizontalBlocks; x++)
                 {
-                    Yblocks[x, y] = GenerateBlock(YImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    Yblocks[x, y] = CreateBlock(YImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
                     YdctBlocks[x, y] = new Block();
 
-                    Cbblocks[x, y] = GenerateBlock(CbImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    Cbblocks[x, y] = CreateBlock(CbImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
                     CbdctBlocks[x, y] = new Block();
 
-                    Crblocks[x, y] = GenerateBlock(CrImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    Crblocks[x, y] = CreateBlock(CrImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
                     CrdctBlocks[x, y] = new Block();
 
                 }
