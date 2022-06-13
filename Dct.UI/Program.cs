@@ -13,7 +13,7 @@ namespace Dct.UI
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Compression());
+            Application.Run(new FormCompression());
         }
     }
 }

@@ -46,16 +46,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Compression.cs">
+    <Compile Include="FormCompression.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Compression.Designer.cs">
-      <DependentUpon>Compression.cs</DependentUpon>
+    <Compile Include="FormCompression.Designer.cs">
+      <DependentUpon>FormCompression.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormUncompress.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormUncompress.Designer.cs">
+      <DependentUpon>FormUncompress.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Compression.resx">
-      <DependentUpon>Compression.cs</DependentUpon>
+    <EmbeddedResource Include="FormCompression.resx">
+      <DependentUpon>FormCompression.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormUncompress.resx">
+      <DependentUpon>FormUncompress.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
