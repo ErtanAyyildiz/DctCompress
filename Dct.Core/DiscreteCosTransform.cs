@@ -56,8 +56,8 @@ namespace Dct.Core
 
         public void Compress()
         {
-            int horizontalBlocks = (int)Math.Ceiling((double)YImage.GetLength(0) / 8);//amount of full 8x8 blocks will fit horizontally
-            int verticalBlocks = (int)Math.Ceiling((double)YImage.GetLength(1) / 8);//amount of full 8x8 blocks will fit vertically
+            int horizontalBlocks = (int)Math.Ceiling((double)YImage.GetLength(0) / 8);//8x8 blok yatay olarak sığdırma
+            int verticalBlocks = (int)Math.Ceiling((double)YImage.GetLength(1) / 8);//8x8 blok dikey olarak sığdırma
 
             Block[,] Yblocks = new Block[horizontalBlocks, verticalBlocks];
             Block[,] YdctBlocks = new Block[horizontalBlocks, verticalBlocks];
@@ -96,7 +96,7 @@ namespace Dct.Core
             {
                 for (int x = 0; x < horizontalBlocks; x++)
                 {
-                    //Debug.WriteLine("-----------Starting------------");
+                    
                     for (int v = 0; v < 8; v++)
                     {
                         for (int u = 0; u < 8; u++)
@@ -107,7 +107,7 @@ namespace Dct.Core
                             CrdctBlocks[x, y][u, v] = DCTFormul(Crblocks[x, y], u, v);
 
                         }
-                        //Debug.WriteLine("");
+
                     }
 
                     YdctBlocks[x, y] = ApplyQuantization(YdctBlocks[x, y], luminance);
@@ -177,10 +177,7 @@ namespace Dct.Core
         }
 
 
-        /*
-        Generates an 8x8 block from a position 
-            */
-
+      
         /*
         Puts an array of blocks back together as a single double array, ready for conversion to image
             */
@@ -205,7 +202,7 @@ namespace Dct.Core
         }
 
         /*
-        Applies DCT formula to a block, and returns the post DCT pixel
+        DCT Formülünü bloklara uygular. DCT Sonrası pikselleri döndürür.
             */
         public double DCTFormul(Block input, double u, double v)
         {
@@ -230,7 +227,7 @@ namespace Dct.Core
         /*
         Applies inverse DCT formula and returns the image pixel
             */
-        public double ApplyIDCTFormula(Block input, double i, double j)
+        public double IDCTFormula(Block input, double i, double j)
         {
             double sum = 0, firstCos, secondCos;
 
@@ -653,12 +650,12 @@ namespace Dct.Core
                     {
                         for (int u = 0; u < 8; u++)
                         {
-                            YpostBlocks[x, y][u, v] = ApplyIDCTFormula(YdctBlocks[x, y], u, v);
+                            YpostBlocks[x, y][u, v] = IDCTFormula(YdctBlocks[x, y], u, v);
 
                             //if (x % 2 == 0 && y % 2 == 0)
                             //{
-                            CbpostBlocks[x, y][u, v] = ApplyIDCTFormula(CbdctBlocks[x, y], u, v);
-                            CrpostBlocks[x, y][u, v] = ApplyIDCTFormula(CrdctBlocks[x, y], u, v);
+                            CbpostBlocks[x, y][u, v] = IDCTFormula(CbdctBlocks[x, y], u, v);
+                            CrpostBlocks[x, y][u, v] = IDCTFormula(CrdctBlocks[x, y], u, v);
                             //}
                         }
                     }
