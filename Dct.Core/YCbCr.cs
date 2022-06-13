@@ -2,39 +2,19 @@
 {
     public sealed class YCbCr
     {
-        private double Y;
-        public double Cb;
-        private double Cr;
-
-        public double getY()
+        public YCbCr()
         {
-            return Y;
         }
 
-        public double getCb()
+        public YCbCr(double y, double cb, double cr)
         {
-            return Cb;
+            Y = y;
+            Cb = cb;
+            Cr = cr;
         }
 
-        public double getCr()
-        {
-            return Cr;
-        }
-
-        public void setY(double Y)
-        {
-
-            this.Y = Y;
-        }
-
-        public void setCb(double Cb)
-        {
-            this.Cb = Cb;
-        }
-
-        public void setCr(double Cr)
-        {
-            this.Cr = Cr;
-        }
+        public double Y { get; set; }
+        public double Cb { get; set; }
+        public double Cr { get; set; }
     }
 }

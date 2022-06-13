@@ -180,9 +180,9 @@ namespace Dct.UI
                     rgb.Green = pixel.G;
                     rgb.Blue = pixel.B;
                     ycbcrPixels[x, y] = ConvertRgbToYCbCr(rgb);
-                    Y[x, y] = ycbcrPixels[x, y].getY();
-                    Cb[x / 2, y / 2] = ycbcrPixels[x, y].getCb();
-                    Cr[x / 2, y / 2] = ycbcrPixels[x, y].getCr();
+                    Y[x, y] = ycbcrPixels[x, y].Y;
+                    Cb[x / 2, y / 2] = ycbcrPixels[x, y].Cb;
+                    Cr[x / 2, y / 2] = ycbcrPixels[x, y].Cr;
                 }
             }
         }
@@ -255,9 +255,9 @@ namespace Dct.UI
         YCbCr ConvertRgbToYCbCr(RedGreenBlue rgb)
         {
             YCbCr output = new YCbCr();
-            output.setY(16 + (rgb.Red * 0.257 + rgb.Green * 0.504 + rgb.Blue * 0.098));
-            output.setCb(128 + (rgb.Red * -0.148 + rgb.Green * -0.291 + rgb.Blue * 0.439));
-            output.setCr(128 + (rgb.Red * 0.439 + rgb.Green * -0.368 + rgb.Blue * -0.071));
+            output.Y= 16 + (rgb.Red * 0.257 + rgb.Green * 0.504 + rgb.Blue * 0.098);
+            output.Cb = 128 + (rgb.Red * -0.148 + rgb.Green * -0.291 + rgb.Blue * 0.439);
+            output.Cr = 128 + (rgb.Red * 0.439 + rgb.Green * -0.368 + rgb.Blue * -0.071);
             return output;
         }
 
