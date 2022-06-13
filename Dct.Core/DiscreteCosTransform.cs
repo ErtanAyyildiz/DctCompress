@@ -6,10 +6,9 @@ namespace Dct.Core
 {
     public class DiscreteCosTransform : ICompressor
     {
-        private double[,] cbImage;
         public Block[,] Yblocks, Cbblocks, Crblocks;
-        private double[,] yImage;
-        private double[,] crImage;
+        private double[,] yImage, crImage, cbImage;
+
         readonly int[,] luminance = {
             { 16, 11, 10, 16, 24, 40, 51, 61 },
             { 12, 12, 14, 19, 26, 58, 60, 55 },
@@ -172,8 +171,8 @@ namespace Dct.Core
                 toSave[position++] = CrSaveBuffer[i];
             }
 
-            FileFunctions.SaveCompressed(toSave, YImage.GetLength(0), YImage.GetLength(1));
-            byte[] savedData = FileFunctions.OpenCompressed("TestFile.cmpr");
+            FileFunctions.Save(toSave, YImage.GetLength(0), YImage.GetLength(1));
+            byte[] savedData = FileFunctions.OpenCompressed(FileFunctions.FILE_NAME);
             DecodeSaveArray(savedData);
         }
 

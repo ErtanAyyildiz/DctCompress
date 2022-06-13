@@ -3,6 +3,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace Dct.UI
@@ -14,9 +15,8 @@ namespace Dct.UI
                 new DiscreteCosTransform()
                 );
 
-
-        Bitmap uncompressedBitmap;
-        Bitmap uncompressedSecondFrame;
+        Bitmap uncompressed;
+        Bitmap uncompressedSecond;
 
         public Compression()
         {
@@ -25,63 +25,49 @@ namespace Dct.UI
 
         void OpenUncompressedToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-
-            // Set filter options and filter index.
-            openFileDialog1.InitialDirectory = @"N:\My Documents\My Pictures";
-            openFileDialog1.Filter = "JPEG Compressed Image (*.jpg|*.jpg" + "|GIF Image(*.gif|*.gif" + "|Bitmap Image(*.bmp|*.bmp";
-            openFileDialog1.Multiselect = true;
-            openFileDialog1.FilterIndex = 1;
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            OpenFileDialog open = new OpenFileDialog
             {
-                uncompressedBitmap = new Bitmap(openFileDialog1.FileName);
-                uncompressedBitmap.Save("OriginalImage.bmp", ImageFormat.Bmp);
-            }
+                InitialDirectory = @"N:\My Documents\My Pictures",
+                Filter = "Resim dosyaları (*.jpg|*.jpg" + "|GIF Image(*.gif|*.gif" + "|Bitmap Image(*.bmp|*.bmp",
+            };
 
-            pictureBox1.Image = uncompressedBitmap;
-            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            if (open.ShowDialog().Equals(DialogResult.OK))
+            {
+                uncompressed = new Bitmap(open.FileName);
+                pictureBox1.Image = uncompressed;
+            }
 
         }
 
         void OpenCompressedToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            var asm = Assembly.GetExecutingAssembly();
+            string path = Path.GetDirectoryName(asm.Location);
+
             var ofd = new OpenFileDialog
             {
-                InitialDirectory = @"N:\My Documents\My Pictures",
+                InitialDirectory = path,
                 Filter = "Özel Sıkıştırılmış dosya! (*.cmpr|*.cmpr",
-                Multiselect = false,
-                FilterIndex = 1
             };
 
             if (ofd.ShowDialog().Equals(DialogResult.OK))
             {
                 CompressionStrategy.OpenSavedFile(ofd.FileName);
                 Bitmap image = GenerateRgbBitmapFromYCbCr(
-                    CompressionStrategy.YImage, 
-                    CompressionStrategy.CbImage, 
+                    CompressionStrategy.YImage,
+                    CompressionStrategy.CbImage,
                     CompressionStrategy.CrImage
                     );
 
-                image.Save("FinalJPEG.bmp", ImageFormat.Bmp);
                 pictureBox2.Image = image;
                 pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
-                //uncompressedBitmap = new Bitmap(openFileDialog1.FileName);
             }
         }
 
-
         void CompressImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-            saveFileDialog1.Filter = "My compression (*.cmpr|*.cmpr";
-            saveFileDialog1.FilterIndex = 1;
-            //if (saveFileDialog1.ShowDialog() == DialogResult.OK) {
-
-            //}
-            CompressBitmap(uncompressedBitmap);
+            CompressBitmap(uncompressed);
         }
-
-
 
         /*
             Compress an image bitmap using jpeg techniques
@@ -97,7 +83,7 @@ namespace Dct.UI
             double[,] cr = new double[width / 2, height / 2];
 
             GenerateYcbcrBitmap(
-                uncompressed, 
+                uncompressed,
                 ref y,
                 ref cb,
                 ref cr);
@@ -112,67 +98,18 @@ namespace Dct.UI
             CompressionStrategy.CbImage = cb;
             CompressionStrategy.Compress();
 
-            MessageBox.Show("Dikkat!",
-                "Sıkıştırma operasyonu tamamlandı!",
+            MessageBox.Show(
+                "Sıkıştırma operasyonu tamamlandı...",
+                "Dikkat!",
                 MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+                MessageBoxIcon.Information
+                );
         }
 
         /**
         Old code for saving to custom fileType.  not useable anymore.
             **/
-        public void OldSavingStuff(double[,] Y)
-        {
-            int width = Y.GetLength(0);
-            int height = Y.GetLength(1);
-            YCbCr[,] ycbcrPixels = new YCbCr[width, height];
-
-            Bitmap testBitmap = new Bitmap(width, height);
-            //testBitmap = generateRgbBitmap(ycbcrPixels);
-
-            testBitmap.Save("SubsampledImage.bmp", ImageFormat.Bmp);
-
-            byte[] bytesToSave = new byte[width * height * 3 + 8];
-
-            int byteOffset = 0;
-            RedGreenBlue rgb = new RedGreenBlue();
-
-            byte[] widthBytes = BitConverter.GetBytes(width);
-            byte[] heightBytes = BitConverter.GetBytes(height);
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(widthBytes);
-                Array.Reverse(heightBytes);
-            }
-
-            //Saving image width to beginning of byte array.
-            for (int i = 0; i < widthBytes.Length; i++)
-            {
-                bytesToSave[byteOffset++] = widthBytes[i];
-            }
-
-            //saving image Height to beginning of byte array.
-            for (int i = 0; i < heightBytes.Length; i++)
-            {
-                bytesToSave[byteOffset++] = heightBytes[i];
-            }
-
-            //Saving image data to byte array.
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    rgb = ConvertYCbCrToRgb(1, 2, 3);
-                    bytesToSave[y * width + x + byteOffset++] = (byte)rgb.Red;
-                    bytesToSave[y * width + x + byteOffset++] = (byte)rgb.Green;
-                    bytesToSave[y * width + x + byteOffset] = (byte)rgb.Blue;
-                    //Debug.WriteLine(uncompressed.GetPixel(x,y));
-                    //Debug.WriteLine(testBitmap.GetPixel(x,y));
-                }
-            }
-            File.WriteAllBytes("TestFile.cmpr", bytesToSave);
-        }
-
+     
         /*Converts a RGB bitmap to YCbCr*/
         void GenerateYcbcrBitmap(Bitmap uncompressed, ref double[,] Y, ref double[,] Cb, ref double[,] Cr)
         {
@@ -282,27 +219,7 @@ namespace Dct.UI
             double blue = (curY - 16) * 1.164 + (curCb - 128) * 2.017 + (curCr - 128) * 0;
             output.Blue = (short)blue;
             return output;
-        }
-
-
-        void LoadSecondFrameToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-
-            // Set filter options and filter index.
-            openFileDialog1.InitialDirectory = @"N:\My Documents\My Pictures";
-            openFileDialog1.Filter = "JPEG Compressed Image (*.jpg|*.jpg" + "|GIF Image(*.gif|*.gif" + "|Bitmap Image(*.bmp|*.bmp";
-            openFileDialog1.Multiselect = true;
-            openFileDialog1.FilterIndex = 1;
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                uncompressedSecondFrame = new Bitmap(openFileDialog1.FileName);
-                //uncompressedSecondFrame.Save("OriginalSecondImage.bmp", ImageFormat.Bmp);
-            }
-
-            pictureBox6.Image = uncompressedSecondFrame;
-            pictureBox6.SizeMode = PictureBoxSizeMode.Zoom;
-        }
+        } 
 
         void SaveCompressedToolStripMenuItem_Click(object sender, EventArgs e)
         {

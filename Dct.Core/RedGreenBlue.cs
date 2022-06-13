@@ -10,13 +10,6 @@
         private short blue;
         private short green;
 
-        public RedGreenBlue(short red, short blue, short green)
-        {
-            this.red = red;
-            this.blue = blue;
-            this.green = green;
-        }
-
         public short Red
         {
             get => red; 

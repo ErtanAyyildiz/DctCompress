@@ -28,8 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.label6 = new System.Windows.Forms.Label();
-            this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -40,7 +38,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveCompressedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.loadSecondFrameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.compressImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openCompressedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openUncompressedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -48,7 +45,6 @@
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -56,24 +52,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // label6
-            // 
-            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(449, 53);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(76, 13);
-            this.label6.TabIndex = 27;
-            this.label6.Text = "Second Frame";
-            // 
-            // pictureBox6
-            // 
-            this.pictureBox6.Location = new System.Drawing.Point(248, 69);
-            this.pictureBox6.Name = "pictureBox6";
-            this.pictureBox6.Size = new System.Drawing.Size(242, 197);
-            this.pictureBox6.TabIndex = 26;
-            this.pictureBox6.TabStop = false;
             // 
             // label5
             // 
@@ -132,18 +110,18 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(764, 53);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(65, 13);
+            this.label2.Size = new System.Drawing.Size(59, 13);
             this.label2.TabIndex = 19;
-            this.label2.Text = "Compressed";
+            this.label2.Text = "Sıkıştırılmış:";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(74, 53);
+            this.label1.Location = new System.Drawing.Point(82, 53);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(78, 13);
+            this.label1.Size = new System.Drawing.Size(73, 13);
             this.label1.TabIndex = 18;
-            this.label1.Text = "Uncompressed";
+            this.label1.Text = "Sıkıştırılmamış:";
             // 
             // openFileDialog1
             // 
@@ -152,36 +130,29 @@
             // saveCompressedToolStripMenuItem
             // 
             this.saveCompressedToolStripMenuItem.Name = "saveCompressedToolStripMenuItem";
-            this.saveCompressedToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.saveCompressedToolStripMenuItem.Text = "Save Compressed";
+            this.saveCompressedToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+            this.saveCompressedToolStripMenuItem.Text = "Sıkışltırılmış Resmi Kaydet";
             this.saveCompressedToolStripMenuItem.Click += new System.EventHandler(this.SaveCompressedToolStripMenuItem_Click);
-            // 
-            // loadSecondFrameToolStripMenuItem
-            // 
-            this.loadSecondFrameToolStripMenuItem.Name = "loadSecondFrameToolStripMenuItem";
-            this.loadSecondFrameToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.loadSecondFrameToolStripMenuItem.Text = "Load Second Frame";
-            this.loadSecondFrameToolStripMenuItem.Click += new System.EventHandler(this.LoadSecondFrameToolStripMenuItem_Click);
             // 
             // compressImageToolStripMenuItem
             // 
             this.compressImageToolStripMenuItem.Name = "compressImageToolStripMenuItem";
-            this.compressImageToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.compressImageToolStripMenuItem.Text = "Compress Image";
+            this.compressImageToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+            this.compressImageToolStripMenuItem.Text = "Resmi Sıkıştır";
             this.compressImageToolStripMenuItem.Click += new System.EventHandler(this.CompressImageToolStripMenuItem_Click);
             // 
             // openCompressedToolStripMenuItem
             // 
             this.openCompressedToolStripMenuItem.Name = "openCompressedToolStripMenuItem";
-            this.openCompressedToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.openCompressedToolStripMenuItem.Text = "Open Compressed";
+            this.openCompressedToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+            this.openCompressedToolStripMenuItem.Text = "Sıkıştırılmış Dosya Aç";
             this.openCompressedToolStripMenuItem.Click += new System.EventHandler(this.OpenCompressedToolStripMenuItem_Click);
             // 
             // openUncompressedToolStripMenuItem
             // 
             this.openUncompressedToolStripMenuItem.Name = "openUncompressedToolStripMenuItem";
-            this.openUncompressedToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.openUncompressedToolStripMenuItem.Text = "Open Uncompressed";
+            this.openUncompressedToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+            this.openUncompressedToolStripMenuItem.Text = "Sıkıştırılmamış Dosya Aç";
             this.openUncompressedToolStripMenuItem.Click += new System.EventHandler(this.OpenUncompressedToolStripMenuItem_Click);
             // 
             // fileToolStripMenuItem
@@ -190,11 +161,10 @@
             this.openUncompressedToolStripMenuItem,
             this.openCompressedToolStripMenuItem,
             this.compressImageToolStripMenuItem,
-            this.loadSecondFrameToolStripMenuItem,
             this.saveCompressedToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "&File";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(51, 20);
+            this.fileToolStripMenuItem.Text = "Dosya";
             // 
             // pictureBox2
             // 
@@ -202,14 +172,16 @@
             this.pictureBox2.Location = new System.Drawing.Point(505, 69);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(566, 498);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox2.TabIndex = 17;
             this.pictureBox2.TabStop = false;
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(-2, 69);
+            this.pictureBox1.Location = new System.Drawing.Point(6, 69);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(242, 197);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 16;
             this.pictureBox1.TabStop = false;
             // 
@@ -228,8 +200,6 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1056, 590);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.pictureBox6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
@@ -243,7 +213,6 @@
             this.Controls.Add(this.menuStrip1);
             this.Name = "Compression";
             this.Text = "Form1";
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
@@ -257,9 +226,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.PictureBox pictureBox6;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
@@ -270,7 +236,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.ToolStripMenuItem saveCompressedToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem loadSecondFrameToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem compressImageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openCompressedToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openUncompressedToolStripMenuItem;
