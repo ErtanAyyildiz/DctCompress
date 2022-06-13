@@ -41,17 +41,18 @@ namespace Dct.UI
 
         void OpenCompressedToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-            byte[] fileBytes;
-            // Set filter options and filter index.
-            openFileDialog1.InitialDirectory = @"N:\My Documents\My Pictures";
-            openFileDialog1.Filter = "My compression (*.cmpr|*.cmpr";
-            openFileDialog1.Multiselect = false;
-            openFileDialog1.FilterIndex = 1;
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            var ofd = new OpenFileDialog
+            {
+                InitialDirectory = @"N:\My Documents\My Pictures",
+                Filter = "Özel Sıkıştırılmış dosya! (*.cmpr|*.cmpr",
+                Multiselect = false,
+                FilterIndex = 1
+            };
+
+            if (ofd.ShowDialog().Equals(DialogResult.OK))
             {
                 DCT dct = new DCT();
-                dct.openSavedFile(openFileDialog1.FileName);
+                dct.openSavedFile(ofd.FileName);
 
                 Bitmap finalImage = GenerateRgbBitmapFromYCbCr(dct.YImage, dct.CbImage, dct.CrImage);
                 finalImage.Save("FinalJPEG.bmp", ImageFormat.Bmp);
@@ -255,7 +256,7 @@ namespace Dct.UI
         YCbCr ConvertRgbToYCbCr(RedGreenBlue rgb)
         {
             YCbCr output = new YCbCr();
-            output.Y= 16 + (rgb.Red * 0.257 + rgb.Green * 0.504 + rgb.Blue * 0.098);
+            output.Y = 16 + (rgb.Red * 0.257 + rgb.Green * 0.504 + rgb.Blue * 0.098);
             output.Cb = 128 + (rgb.Red * -0.148 + rgb.Green * -0.291 + rgb.Blue * 0.439);
             output.Cr = 128 + (rgb.Red * 0.439 + rgb.Green * -0.368 + rgb.Blue * -0.071);
             return output;
@@ -302,82 +303,6 @@ namespace Dct.UI
             {
                 pictureBox2.Image.Save(save.FileName, ImageFormat.Jpeg);
             }
-        }
-
-        /*Generate motion vectors between the two frames*/
-        void GenerateMotionVectorsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            int width = uncompressedSecondFrame.Width;
-            int height = uncompressedSecondFrame.Height;
-
-            double[,] Y = new double[width, height];
-            double[,] Cb = new double[width / 2, height / 2];
-            double[,] Cr = new double[width / 2, height / 2];
-
-            //generate the Y, Cb, Cr values from the second frame
-            GenerateYcbcrBitmap(uncompressedSecondFrame, ref Y, ref Cb, ref Cr);
-
-            double[,] Y2 = new double[width, height];
-            double[,] Cb2 = new double[width / 2, height / 2];
-            double[,] Cr2 = new double[width / 2, height / 2];
-
-            GenerateYcbcrBitmap(uncompressedBitmap, ref Y2, ref Cb2, ref Cr2);
-
-            DCT dct = new DCT();
-            Point[,] vectors = new Point[(int)Math.Ceiling((double)width / 8), (int)Math.Ceiling((double)height / 8)];
-            Block[,] YerrorBlocks = new Block[(int)Math.Ceiling((double)width / 8), (int)Math.Ceiling((double)height / 8)];
-            Block[,] CberrorBlocks = new Block[(int)Math.Ceiling((double)width / 8), (int)Math.Ceiling((double)height / 8)];
-            Block[,] CrerrorBlocks = new Block[(int)Math.Ceiling((double)width / 8), (int)Math.Ceiling((double)height / 8)];
-            VideoCompression vidcom = new VideoCompression();
-
-            for (int y = 0; y < height; y += 8)
-            {
-                for (int x = 0; x < width; x += 8)
-                {
-                    Block Yblock = dct.generateBlock(Y, x, y);
-                    Block Cbblock = dct.generateBlock(Cb, x, y);
-                    Block Crblock = dct.generateBlock(Cr, x, y);
-
-                    vectors[x / 8, y / 8] = vidcom.getVector(Y2, Yblock, x, y, 15);
-                    vidcom.getErrorForPosition(Cb2, Cbblock, vectors[x / 8, y / 8].X, vectors[x / 8, y / 8].Y, 2);
-                    vidcom.getErrorForPosition(Cr2, Crblock, vectors[x / 8, y / 8].X, vectors[x / 8, y / 8].Y, 3);
-                    YerrorBlocks[x / 8, y / 8] = vidcom.getCurrentYErrorBlock();
-                    CberrorBlocks[x / 8, y / 8] = vidcom.getCurrentCbErrorBlock();
-                    CrerrorBlocks[x / 8, y / 8] = vidcom.getCurrentCrErrorBlock();
-
-                    Debug.Write("(" + vectors[x / 8, y / 8].X + "," + vectors[x / 8, y / 8].Y + "),");
-                }
-                Debug.WriteLine("");
-            }
-
-
-            dct.compressPframe(YerrorBlocks, CberrorBlocks, CrerrorBlocks, vectors, width, height);
-
-
-            Block[,] finalY = new Block[dct.Yblocks.GetLength(0), dct.Yblocks.GetLength(1)];
-            Block[,] finalCb = new Block[dct.Yblocks.GetLength(0), dct.Yblocks.GetLength(1)];
-            Block[,] finalCr = new Block[dct.Yblocks.GetLength(0), dct.Yblocks.GetLength(1)];
-
-            for (int y = 0; y < dct.Yblocks.GetLength(0); y++)
-            {
-                for (int x = 0; x < dct.Yblocks.GetLength(1); x++)
-                {
-                    vidcom.getOriginalFromError(Y2, dct.Yblocks[x, y], x * 8 + vectors[x, y].X, y * 8 + vectors[x, y].Y, 1);
-                    finalY[x, y] = vidcom.YpostBlock;
-                    vidcom.getOriginalFromError(Cb2, dct.Cbblocks[x, y], x * 8 + vectors[x, y].X, y * 8 + vectors[x, y].Y, 2);
-                    finalCb[x, y] = vidcom.CbpostBlock;
-                    vidcom.getOriginalFromError(Cr2, dct.Crblocks[x, y], x * 8 + vectors[x, y].X, y * 8 + vectors[x, y].Y, 3);
-                    finalCr[x, y] = vidcom.CrpostBlock;
-                }
-            }
-
-            double[,] finalYimage = dct.makeDoubleArrayFromBlocks(finalY, width, height);
-            double[,] finalCbimage = dct.makeDoubleArrayFromBlocks(finalCb, width, height);
-            double[,] finalCrimage = dct.makeDoubleArrayFromBlocks(finalCr, width, height);
-
-            Bitmap pframe = GenerateRgbBitmapFromYCbCr(finalYimage, finalCbimage, finalCrimage);
-            pictureBox2.Image = pframe;
-            pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
         }
     }
 }

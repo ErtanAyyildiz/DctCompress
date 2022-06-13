@@ -81,37 +81,22 @@ namespace Dct.Core
                         for (int u = 0; u < 8; u++)
                         {
 
-                            YdctBlocks[x, y].set(u, v, applyDCTFormula(Yblocks[x, y], u, v));
-                            CbdctBlocks[x, y].set(u, v, applyDCTFormula(Cbblocks[x, y], u, v));
-                            CrdctBlocks[x, y].set(u, v, applyDCTFormula(Crblocks[x, y], u, v));
+                            YdctBlocks[x, y][u, v] = ApplyDCTFormula(Yblocks[x, y], u, v);
+                            CbdctBlocks[x, y][u, v] = ApplyDCTFormula(Cbblocks[x, y], u, v);
+                            CrdctBlocks[x, y][u, v] = ApplyDCTFormula(Crblocks[x, y], u, v);
 
                         }
                         //Debug.WriteLine("");
                     }
 
-                    YdctBlocks[x, y] = applyQuantization(YdctBlocks[x, y], luminance);
-                    CbdctBlocks[x, y] = applyQuantization(CbdctBlocks[x, y], chrominance);
-                    CrdctBlocks[x, y] = applyQuantization(CrdctBlocks[x, y], chrominance);
+                    YdctBlocks[x, y] = ApplyQuantization(YdctBlocks[x, y], luminance);
+                    CbdctBlocks[x, y] = ApplyQuantization(CbdctBlocks[x, y], chrominance);
+                    CrdctBlocks[x, y] = ApplyQuantization(CrdctBlocks[x, y], chrominance);
+
+                    int[] Yzig = ApplyZigZag(YdctBlocks[x, y]);
 
 
-                    if (x == 0 && y == 0)
-                    {
-                        for (int q = 0; q < 8; q++)
-                        {
-                            for (int w = 0; w < 8; w++)
-                            {
-                                Debug.Write(YdctBlocks[x, y].get(q, w) + ",");
-                                //Debug.Write(CbdctBlocks[x, y].get(q, w) + ",");
-                            }
-                            Debug.WriteLine("");
-                        }
-
-                        Debug.WriteLine("-------------------------------------");
-                    }
-                    int[] Yzig = applyZigZag(YdctBlocks[x, y]);
-
-
-                    int[] Yencoded = runLengthEncode(Yzig);
+                    int[] Yencoded = RunLengthEncode(Yzig);
                     YSaveBuffer.Add(Yencoded.Length);
                     for (int i = 0; i < Yencoded.Length; i++)
                     {
@@ -125,11 +110,11 @@ namespace Dct.Core
                     int[] Crencoded = new int[128];
 
 
-                    Cbzig = applyZigZag(CbdctBlocks[x, y]);
-                    Crzig = applyZigZag(CrdctBlocks[x, y]);
+                    Cbzig = ApplyZigZag(CbdctBlocks[x, y]);
+                    Crzig = ApplyZigZag(CrdctBlocks[x, y]);
 
-                    Cbencoded = runLengthEncode(Cbzig);
-                    Crencoded = runLengthEncode(Crzig);
+                    Cbencoded = RunLengthEncode(Cbzig);
+                    Crencoded = RunLengthEncode(Crzig);
 
                     //first save the length of the run length, so we know how far to read later
                     CbSaveBuffer.Add(Cbencoded.Length);
@@ -198,8 +183,8 @@ namespace Dct.Core
                 toSave[position++] = CrSaveBuffer[i];
             }
 
-            FileFunctions.saveCompressed(toSave, Y.GetLength(0), Y.GetLength(1));
-            byte[] savedData = FileFunctions.openCompressed("TestFile.cmpr");
+            FileFunctions.SaveCompressed(toSave, Y.GetLength(0), Y.GetLength(1));
+            byte[] savedData = FileFunctions.OpenCompressed("TestFile.cmpr");
             decodeSaveArray(savedData);
         }
 
@@ -216,11 +201,11 @@ namespace Dct.Core
                 {
                     if (x < fullSize.GetLength(0) && y < fullSize.GetLength(1))
                     {
-                        block.set(x - xPosition, y - yPosition, fullSize[x, y]);
+                        block[x - xPosition, y - yPosition] = fullSize[x, y];
                     }
                     else
                     {
-                        block.set(x - xPosition, y - yPosition, 0.0);
+                        block[x - xPosition, y - yPosition] = 0.0;
                     }
                 }
             }
@@ -230,7 +215,7 @@ namespace Dct.Core
         /*
         Puts an array of blocks back together as a single double array, ready for conversion to image
             */
-        public double[,] makeDoubleArrayFromBlocks(Block[,] blocks, int width, int height)
+        public double[,] MakeDoubleArrayFromBlocks(Block[,] blocks, int width, int height)
         {
             double[,] image = new double[width, height];
 
@@ -243,7 +228,7 @@ namespace Dct.Core
                     int XinsidePosition = x - (XblockPosition * 8);
                     int YinsidePosition = y - (YblockPosition * 8);
 
-                    image[x, y] = blocks[XblockPosition, YblockPosition].get(XinsidePosition, YinsidePosition);
+                    image[x, y] = blocks[XblockPosition, YblockPosition][XinsidePosition, YinsidePosition];
                 }
             }
 
@@ -253,7 +238,7 @@ namespace Dct.Core
         /*
         Applies DCT formula to a block, and returns the post DCT pixel
             */
-        public double applyDCTFormula(Block input, double u, double v)
+        public double ApplyDCTFormula(Block input, double u, double v)
         {
             double sum = 0, firstCos, secondCos;
 
@@ -263,7 +248,7 @@ namespace Dct.Core
                 {
                     firstCos = Math.Cos((2 * i + 1) * u * Math.PI / 16);
                     secondCos = Math.Cos((2 * j + 1) * v * Math.PI / 16);
-                    sum += (firstCos * secondCos * input.get((int)i, (int)j));
+                    sum += firstCos * secondCos * input[(int)i, (int)j];
                     //if (i < 4 && j < 4) sum += firstCos * secondCos * input.get((int)i, (int)j);
                 }
             }
@@ -276,7 +261,7 @@ namespace Dct.Core
         /*
         Applies inverse DCT formula and returns the image pixel
             */
-        public double applyIDCTFormula(Block input, double i, double j)
+        public double ApplyIDCTFormula(Block input, double i, double j)
         {
             double sum = 0, firstCos, secondCos;
 
@@ -286,7 +271,7 @@ namespace Dct.Core
                 {
                     firstCos = Math.Cos((2 * i + 1) * u * Math.PI / 16);
                     secondCos = Math.Cos((2 * j + 1) * v * Math.PI / 16);
-                    sum += c(u) * c(v) / 4 * firstCos * secondCos * input.get((int)u, (int)v);
+                    sum += c(u) * c(v) / 4 * firstCos * secondCos * input[(int)u, (int)v];
                 }
             }
 
@@ -305,27 +290,33 @@ namespace Dct.Core
         /*
         Creates a bitmap from an array of 8*8 blocks.
             */
-        public Bitmap createBitmapFromBlocks(Block[,] blocks, int imageWidth, int imageHeight)
+        public Bitmap createBitmapFromBlocks(Block[,] blocks, int width, int height)
         {
-            Bitmap image = new Bitmap(imageWidth, imageHeight);
-            int blocksVertical = blocks.GetLength(0);
-            int blocksHorizontal = blocks.GetLength(1);
+            int vert = blocks.GetLength(0);
+            int horiz = blocks.GetLength(1);
+            var image = new Bitmap(width, height);
 
-            for (int y = 0; y < blocksHorizontal; y++)
+            for (int y = 0; y < horiz; y++)
             {
-                for (int x = 0; x < blocksVertical; x++)
+                for (int x = 0; x < vert; x++)
                 {
-
                     for (int blockY = 0; blockY < 8; blockY++)
                     {
                         for (int blockX = 0; blockX < 8; blockX++)
                         {
-                            if (y * 8 + blockY >= imageHeight) continue;
-                            if (x * 8 + blockX >= imageWidth) continue;
-                            image.SetPixel(x * 8 + blockX, y * 8 + blockY, Color.FromArgb((int)blocks[x, y].get(blockX, blockY), (int)blocks[x, y].get(blockX, blockY), (int)blocks[x, y].get(blockX, blockY)));
+                            if (y * 8 + blockY >= height) 
+                                continue;
+
+                            if (x * 8 + blockX >= width) 
+                                continue;
+
+                            image.SetPixel(x * 8 + blockX, y * 8 + blockY, Color.FromArgb(
+                                (int)blocks[x, y][blockX, blockY],
+                                (int)blocks[x, y][blockX, blockY], 
+                                (int)blocks[x, y][blockX, blockY])
+                                );
                         }
                     }
-
                 }
             }
 
@@ -335,14 +326,14 @@ namespace Dct.Core
         /*
         Divides the values of the block by a passed quantization table, and returns the outcome
             */
-        public Block applyQuantization(Block block, int[,] table)
+        public Block ApplyQuantization(Block block, int[,] table)
         {
             Block quantizedBlock = new Block();
             for (int y = 0; y < 8; y++)
             {
                 for (int x = 0; x < 8; x++)
                 {
-                    quantizedBlock.set(x, y, Math.Round((double)block.get(x, y) / table[x, y]));
+                    quantizedBlock[x, y] = Math.Round((double)block[x, y] / table[x, y]);
                 }
             }
 
@@ -354,22 +345,21 @@ namespace Dct.Core
             */
         public Block RemoveQuantization(Block block, int[,] table)
         {
-            Block quantizedBlock = new Block();
+            var buffer = new Block();
             for (int y = 0; y < 8; y++)
             {
                 for (int x = 0; x < 8; x++)
                 {
-                    quantizedBlock.set(x, y, block.get(x, y) * table[x, y]);
+                    buffer[x, y] = block[x, y] * table[x, y];
                 }
             }
-
-            return quantizedBlock;
+            return buffer;
         }
 
         /*
         converts a block into a 1 dimensional array
             */
-        public int[] applyZigZag(Block block)
+        public int[] ApplyZigZag(Block block)
         {
             int[] zigzag = new int[64];
             int arrayPos = 0;
@@ -378,7 +368,7 @@ namespace Dct.Core
             int x = 0;
             int y = 0;
 
-            zigzag[arrayPos++] = (int)block.get(x, y);
+            zigzag[arrayPos++] = (int)block[x, y];
 
             for (int level = 0; level < 8; level++)
             {
@@ -388,14 +378,14 @@ namespace Dct.Core
                     x += xMove;
                     y += yMove;
 
-                    zigzag[arrayPos++] = (int)block.get(x, y);
+                    zigzag[arrayPos++] = (int)block[x, y];
                 }
 
                 if (level == 7) break;
 
                 if (xMove < 0) y++; else x++;
 
-                zigzag[arrayPos++] = (int)block.get(x, y);
+                zigzag[arrayPos++] = (int)block[x, y];
 
                 yMove *= -1;
                 xMove *= -1;
@@ -406,7 +396,7 @@ namespace Dct.Core
 
             if (xMove < 0) y++; else x++;
 
-            zigzag[arrayPos++] = (int)block.get(x, y);
+            zigzag[arrayPos++] = (int)block[x, y];
 
             for (int level = 6; level > 0; level--)
             {
@@ -416,12 +406,12 @@ namespace Dct.Core
                     x += xMove;
                     y += yMove;
 
-                    zigzag[arrayPos++] = (int)block.get(x, y);
+                    zigzag[arrayPos++] = (int)block[x, y];
                 }
 
                 if (xMove < 0) x++; else y++;
 
-                zigzag[arrayPos++] = (int)block.get(x, y);
+                zigzag[arrayPos++] = (int)block[x, y];
 
                 yMove *= -1;
                 xMove *= -1;
@@ -443,7 +433,7 @@ namespace Dct.Core
             int x = 0;
             int y = 0;
 
-            block.set(x, y, array[arrayPos++]);
+            block[x, y] = array[arrayPos++];
 
             for (int level = 0; level < 8; level++)
             {
@@ -453,14 +443,14 @@ namespace Dct.Core
                     x += xMove;
                     y += yMove;
 
-                    block.set(x, y, array[arrayPos++]);
+                    block[x, y] = array[arrayPos++];
                 }
 
                 if (level == 7) break;
 
                 if (xMove < 0) y++; else x++;
 
-                block.set(x, y, array[arrayPos++]);
+                block[x, y] = array[arrayPos++];
 
                 yMove *= -1;
                 xMove *= -1;
@@ -471,7 +461,7 @@ namespace Dct.Core
 
             if (xMove < 0) y++; else x++;
 
-            block.set(x, y, array[arrayPos++]);
+            block[x, y] = array[arrayPos++];
 
             for (int level = 6; level > 0; level--)
             {
@@ -481,12 +471,12 @@ namespace Dct.Core
                     x += xMove;
                     y += yMove;
 
-                    block.set(x, y, array[arrayPos++]);
+                    block[x, y] = array[arrayPos++];
                 }
 
                 if (xMove < 0) x++; else y++;
 
-                block.set(x, y, array[arrayPos++]);
+                block[x, y] = array[arrayPos++];
 
                 yMove *= -1;
                 xMove *= -1;
@@ -499,7 +489,7 @@ namespace Dct.Core
         /*
         Run length encodes an int array. uses 255 as the key, as none of the quantized values get that high.
             */
-        public int[] runLengthEncode(int[] array)
+        public int[] RunLengthEncode(int[] array)
         {
             int[] buffer = new int[256];
             int pos = 0;
@@ -729,24 +719,8 @@ namespace Dct.Core
                     YdctBlocks[x, y] = undoZigZag(Yzig);
                     CbdctBlocks[x, y] = undoZigZag(Cbzig);
                     CrdctBlocks[x, y] = undoZigZag(Crzig);
-
-
-                    if (x == 0 && y == 0)
-                    {
-                        for (int q = 0; q < 8; q++)
-                        {
-                            for (int w = 0; w < 8; w++)
-                            {
-                                Debug.Write(YdctBlocks[x, y].get(q, w) + ",");
-                                //Debug.Write(CbdctBlocks[x, y].get(q, w) + ",");
-                            }
-                            Debug.WriteLine("");
-                        }
-                    }
-
                 }
             }
-
 
 
             for (int y = 0; y < verticalBlocks; y++)
@@ -761,12 +735,12 @@ namespace Dct.Core
                     {
                         for (int u = 0; u < 8; u++)
                         {
-                            YpostBlocks[x, y].set(u, v, applyIDCTFormula(YdctBlocks[x, y], u, v));
+                            YpostBlocks[x, y][u, v] = ApplyIDCTFormula(YdctBlocks[x, y], u, v);
 
                             //if (x % 2 == 0 && y % 2 == 0)
                             //{
-                            CbpostBlocks[x, y].set(u, v, applyIDCTFormula(CbdctBlocks[x, y], u, v));
-                            CrpostBlocks[x, y].set(u, v, applyIDCTFormula(CrdctBlocks[x, y], u, v));
+                            CbpostBlocks[x, y][u, v] = ApplyIDCTFormula(CbdctBlocks[x, y], u, v);
+                            CrpostBlocks[x, y][u, v] = ApplyIDCTFormula(CrdctBlocks[x, y], u, v);
                             //}
                         }
                     }
@@ -777,9 +751,9 @@ namespace Dct.Core
             this.Cbblocks = CbpostBlocks;
             this.Crblocks = CrpostBlocks;
 
-            YImage = makeDoubleArrayFromBlocks(YpostBlocks, width, height);
-            CbImage = makeDoubleArrayFromBlocks(CbpostBlocks, width, height);
-            CrImage = makeDoubleArrayFromBlocks(CrpostBlocks, width, height);
+            YImage = MakeDoubleArrayFromBlocks(YpostBlocks, width, height);
+            CbImage = MakeDoubleArrayFromBlocks(CbpostBlocks, width, height);
+            CrImage = MakeDoubleArrayFromBlocks(CrpostBlocks, width, height);
         }
 
         /*
@@ -828,56 +802,30 @@ namespace Dct.Core
                     {
                         for (int u = 0; u < 8; u++)
                         {
-
-                            YdctBlocks[x, y].set(u, v, applyDCTFormula(Yblocks[x, y], u, v));
-                            CbdctBlocks[x, y].set(u, v, applyDCTFormula(Cbblocks[x, y], u, v));
-                            CrdctBlocks[x, y].set(u, v, applyDCTFormula(Crblocks[x, y], u, v));
-
+                            YdctBlocks[x, y][u, v] = ApplyDCTFormula(Yblocks[x, y], u, v);
+                            CbdctBlocks[x, y][u, v] = ApplyDCTFormula(Cbblocks[x, y], u, v);
+                            CrdctBlocks[x, y][u, v] = ApplyDCTFormula(Crblocks[x, y], u, v);
                         }
-                        //Debug.WriteLine("");
                     }
 
-                    YdctBlocks[x, y] = applyQuantization(YdctBlocks[x, y], luminance);
-                    CbdctBlocks[x, y] = applyQuantization(CbdctBlocks[x, y], chrominance);
-                    CrdctBlocks[x, y] = applyQuantization(CrdctBlocks[x, y], chrominance);
+                    YdctBlocks[x, y] = ApplyQuantization(YdctBlocks[x, y], luminance);
+                    CbdctBlocks[x, y] = ApplyQuantization(CbdctBlocks[x, y], chrominance);
+                    CrdctBlocks[x, y] = ApplyQuantization(CrdctBlocks[x, y], chrominance);
 
 
-                    if (x == 0 && y == 0)
-                    {
-                        for (int q = 0; q < 8; q++)
-                        {
-                            for (int w = 0; w < 8; w++)
-                            {
-                                Debug.Write(YdctBlocks[x, y].get(q, w) + ",");
-                                //Debug.Write(CbdctBlocks[x, y].get(q, w) + ",");
-                            }
-                            Debug.WriteLine("");
-                        }
-
-                        Debug.WriteLine("-------------------------------------");
-                    }
-                    int[] Yzig = applyZigZag(YdctBlocks[x, y]);
-
-
-                    int[] Yencoded = runLengthEncode(Yzig);
+                    int[] Yzig = ApplyZigZag(YdctBlocks[x, y]);
+                    int[] Yencoded = RunLengthEncode(Yzig);
                     YSaveBuffer.Add(Yencoded.Length);
                     for (int i = 0; i < Yencoded.Length; i++)
                     {
                         YSaveBuffer.Add(Yencoded[i]);
                     }
 
-                    int[] Cbzig = new int[128];
-                    int[] Crzig = new int[128];
+                    int[] Cbzig = ApplyZigZag(CbdctBlocks[x, y]);
+                    int[] Crzig = ApplyZigZag(CrdctBlocks[x, y]);
 
-                    int[] Cbencoded = new int[128];
-                    int[] Crencoded = new int[128];
-
-
-                    Cbzig = applyZigZag(CbdctBlocks[x, y]);
-                    Crzig = applyZigZag(CrdctBlocks[x, y]);
-
-                    Cbencoded = runLengthEncode(Cbzig);
-                    Crencoded = runLengthEncode(Crzig);
+                    int[] Cbencoded = RunLengthEncode(Cbzig);
+                    int[] Crencoded = RunLengthEncode(Crzig);
 
                     //first save the length of the run length, so we know how far to read later
                     CbSaveBuffer.Add(Cbencoded.Length);
@@ -944,14 +892,14 @@ namespace Dct.Core
                 toSave[position++] = CrSaveBuffer[i];
             }
 
-            FileFunctions.saveCompressed(toSave, width, height);
+            FileFunctions.SaveCompressed(toSave, width, height);
             decodeSavePFrameArray(toSave, width, height);
             //decompress(Yencoded, Cbencoded, Crencoded, width, height);
         }
 
         public void openSavedFile(string filename)
         {
-            byte[] savedData = FileFunctions.openCompressed(filename);
+            byte[] savedData = FileFunctions.OpenCompressed(filename);
             decodeSaveArray(savedData);
         }
 

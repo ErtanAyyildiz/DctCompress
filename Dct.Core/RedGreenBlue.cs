@@ -19,7 +19,8 @@
 
         public short Red
         {
-            get => red; set
+            get => red; 
+            set
             {
                 if (value < 0) value = 0;
                 if (value <= 255)
@@ -30,7 +31,8 @@
         }
         public short Blue
         {
-            get => blue; set
+            get => blue; 
+            set
             {
                 if (value < 0) value = 0;
                 if (value <= 255)
@@ -41,7 +43,8 @@
         }
         public short Green
         {
-            get => green; set
+            get => green; 
+            set
             {
                 if (value < 0) value = 0;
                 if (value <= 255)

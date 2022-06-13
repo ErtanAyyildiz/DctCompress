@@ -6,12 +6,7 @@
         {
         }
 
-        public YCbCr(double y, double cb, double cr)
-        {
-            Y = y;
-            Cb = cb;
-            Cr = cr;
-        }
+        public YCbCr(double y, double cb, double cr) => (Y, Cb, Cr) = (y, cb, cr);
 
         public double Y { get; set; }
         public double Cb { get; set; }

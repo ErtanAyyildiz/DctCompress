@@ -2,16 +2,11 @@
 {
     public sealed class Block
     {
-        private double[,] block = new double[8, 8];
-
-        public double get(int x, int y)
+        private readonly double[,] block = new double[8, 8];
+        public double this[int x, int y]
         {
-            return block[x, y];
-        }
-
-        public void set(int x, int y, double data)
-        {
-            this.block[x, y] = data;
+            get => block[x, y];
+            set => block[x, y] = value;
         }
     }
 }

@@ -3,100 +3,53 @@ using System.IO;
 
 namespace Dct.Core
 {
-    public class FileFunctions
+    public static class FileFunctions
     {
-        public static void saveCompressed(int[] data, int width, int height)
+        /// <summary>
+        /// Sıkıştırılmış dosyayı kaydet.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        public static void SaveCompressed(int[] data, int width, int height)
         {
-            byte[] bytesToSave = new byte[data.Length + 8];
-
             int byteOffset = 0;
-            RedGreenBlue rgb = new RedGreenBlue();
+            byte[] totalSize = new byte[data.Length + 8];
+            byte[] wBytes = BitConverter.GetBytes(width);
+            byte[] hBytes = BitConverter.GetBytes(height);
 
-            byte[] widthBytes = BitConverter.GetBytes(width);
-            byte[] heightBytes = BitConverter.GetBytes(height);
             if (BitConverter.IsLittleEndian)
             {
-                Array.Reverse(widthBytes);
-                Array.Reverse(heightBytes);
+                Array.Reverse(wBytes);
+                Array.Reverse(hBytes);
             }
 
             //Saving image width to beginning of byte array.
-            for (int i = 0; i < widthBytes.Length; i++)
+            for (var i = 0; i < wBytes.Length; i++)
             {
-                bytesToSave[byteOffset++] = widthBytes[i];
+                totalSize[byteOffset++] = wBytes[i];
             }
 
             //saving image Height to beginning of byte array.
-            for (int i = 0; i < heightBytes.Length; i++)
+            for (var i = 0; i < hBytes.Length; i++)
             {
-                bytesToSave[byteOffset++] = heightBytes[i];
+                totalSize[byteOffset++] = hBytes[i];
             }
 
-            for (int i = 0; i < data.Length; i++)
+            for (var i = 0; i < data.Length; i++)
             {
-                sbyte currentData = (sbyte)data[i];
-                bytesToSave[i + byteOffset] = (byte)currentData;
+                var currentData = (sbyte)data[i];
+                totalSize[i + byteOffset] = (byte)currentData;
             }
 
-            File.WriteAllBytes("TestFile.cmpr", bytesToSave);
-
-            //int[] fileread = openCompressed("TestFile.cmpr");
-            //for (int i = 0; i < 10; i++)
-            // {
-            //Debug.Write(data[i]+"="+fileread[i]+",");
-            //}
-
+            File.WriteAllBytes("TestFile.cmpr", totalSize);
         }
 
-        public static void saveCompressedPFrame(int[] vectors, int[] data, int width, int height)
-        {
-            byte[] bytesToSave = new byte[data.Length + 8];
-
-            int byteOffset = 0;
-            RedGreenBlue rgb = new RedGreenBlue();
-
-            byte[] widthBytes = BitConverter.GetBytes(width);
-            byte[] heightBytes = BitConverter.GetBytes(height);
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(widthBytes);
-                Array.Reverse(heightBytes);
-            }
-
-            //Saving image width to beginning of byte array.
-            for (int i = 0; i < widthBytes.Length; i++)
-            {
-                bytesToSave[byteOffset++] = widthBytes[i];
-            }
-
-            //saving image Height to beginning of byte array.
-            for (int i = 0; i < heightBytes.Length; i++)
-            {
-                bytesToSave[byteOffset++] = heightBytes[i];
-            }
-
-            for (int i = 0; i < data.Length; i++)
-            {
-                sbyte currentData = (sbyte)data[i];
-                bytesToSave[i + byteOffset] = (byte)currentData;
-            }
-
-            File.WriteAllBytes("TestFile.cmpr", bytesToSave);
-
-            //int[] fileread = openCompressed("TestFile.cmpr");
-            //for (int i = 0; i < 10; i++)
-            // {
-            //Debug.Write(data[i]+"="+fileread[i]+",");
-            //}
-
-        }
-
-        public static byte[] openCompressed(string filename)
-        {
-            byte[] fileByteArray = File.ReadAllBytes(filename);
-
-            return fileByteArray;
-        }
-
+        /// <summary>
+        /// Sıkıştırılmış dosyayı aç!
+        /// </summary>
+        /// <param name="filename">Dosya yolu...</param>
+        /// <returns></returns>
+        public static byte[] OpenCompressed(string filename) => File.ReadAllBytes(filename);
     }
 }

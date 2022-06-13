@@ -39,7 +39,6 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.generateMotionVectorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveCompressedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadSecondFrameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.compressImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -150,45 +149,38 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // generateMotionVectorsToolStripMenuItem
-            // 
-            this.generateMotionVectorsToolStripMenuItem.Name = "generateMotionVectorsToolStripMenuItem";
-            this.generateMotionVectorsToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
-            this.generateMotionVectorsToolStripMenuItem.Text = "Generate Motion Vectors";
-            this.generateMotionVectorsToolStripMenuItem.Click += new System.EventHandler(this.GenerateMotionVectorsToolStripMenuItem_Click);
-            // 
             // saveCompressedToolStripMenuItem
             // 
             this.saveCompressedToolStripMenuItem.Name = "saveCompressedToolStripMenuItem";
-            this.saveCompressedToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.saveCompressedToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.saveCompressedToolStripMenuItem.Text = "Save Compressed";
             this.saveCompressedToolStripMenuItem.Click += new System.EventHandler(this.SaveCompressedToolStripMenuItem_Click);
             // 
             // loadSecondFrameToolStripMenuItem
             // 
             this.loadSecondFrameToolStripMenuItem.Name = "loadSecondFrameToolStripMenuItem";
-            this.loadSecondFrameToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.loadSecondFrameToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.loadSecondFrameToolStripMenuItem.Text = "Load Second Frame";
             this.loadSecondFrameToolStripMenuItem.Click += new System.EventHandler(this.LoadSecondFrameToolStripMenuItem_Click);
             // 
             // compressImageToolStripMenuItem
             // 
             this.compressImageToolStripMenuItem.Name = "compressImageToolStripMenuItem";
-            this.compressImageToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.compressImageToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.compressImageToolStripMenuItem.Text = "Compress Image";
             this.compressImageToolStripMenuItem.Click += new System.EventHandler(this.CompressImageToolStripMenuItem_Click);
             // 
             // openCompressedToolStripMenuItem
             // 
             this.openCompressedToolStripMenuItem.Name = "openCompressedToolStripMenuItem";
-            this.openCompressedToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.openCompressedToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.openCompressedToolStripMenuItem.Text = "Open Compressed";
             this.openCompressedToolStripMenuItem.Click += new System.EventHandler(this.OpenCompressedToolStripMenuItem_Click);
             // 
             // openUncompressedToolStripMenuItem
             // 
             this.openUncompressedToolStripMenuItem.Name = "openUncompressedToolStripMenuItem";
-            this.openUncompressedToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.openUncompressedToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.openUncompressedToolStripMenuItem.Text = "Open Uncompressed";
             this.openUncompressedToolStripMenuItem.Click += new System.EventHandler(this.OpenUncompressedToolStripMenuItem_Click);
             // 
@@ -199,8 +191,7 @@
             this.openCompressedToolStripMenuItem,
             this.compressImageToolStripMenuItem,
             this.loadSecondFrameToolStripMenuItem,
-            this.saveCompressedToolStripMenuItem,
-            this.generateMotionVectorsToolStripMenuItem});
+            this.saveCompressedToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
@@ -278,7 +269,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.ToolStripMenuItem generateMotionVectorsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveCompressedToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadSecondFrameToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem compressImageToolStripMenuItem;
