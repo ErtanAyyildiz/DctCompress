@@ -274,7 +274,7 @@ namespace Dct.Core
         /*
         Quantization(niceleme) geri almak için Quantization uygulanmış blokların değerlerini çarpar ve sonucu döndürür
             */
-        public Block RemoveQuantization(Block block, int[,] table)
+        public Block RemovQuantization(Block block, int[,] table)
         {
             var buffer = new Block();
             for (int y = 0; y < 8; y++)
@@ -288,7 +288,7 @@ namespace Dct.Core
         }
 
         /*
-        converts a block into a 1 dimensional array
+        Bloğu 1 boyutlu diziye dönüştürür.
             */
         public int[] ApplyZigZag(Block block)
         {
@@ -352,7 +352,7 @@ namespace Dct.Core
         }
 
         /*
-        undoes zig zag on an int array, and outputs the original 8x8 block
+        int dizisindeki zig zag'ı geri alır, Orjinal 8x8 Bloğunu verir
             */
         public Block UndoZigZag(int[] array)
         {
@@ -638,9 +638,9 @@ namespace Dct.Core
             {
                 for (int x = 0; x < horizontalBlocks; x++)
                 {
-                    YdctBlocks[x, y] = RemoveQuantization(YdctBlocks[x, y], luminance);
-                    CbdctBlocks[x, y] = RemoveQuantization(CbdctBlocks[x, y], chrominance);
-                    CrdctBlocks[x, y] = RemoveQuantization(CrdctBlocks[x, y], chrominance);
+                    YdctBlocks[x, y] = RemovQuantization(YdctBlocks[x, y], luminance);
+                    CbdctBlocks[x, y] = RemovQuantization(CbdctBlocks[x, y], chrominance);
+                    CrdctBlocks[x, y] = RemovQuantization(CrdctBlocks[x, y], chrominance);
 
                     for (int v = 0; v < 8; v++)
                     {
