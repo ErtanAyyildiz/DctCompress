@@ -125,7 +125,7 @@ namespace Dct.UI
             byte[] bytesToSave = new byte[width * height * 3 + 8];
 
             int byteOffset = 0;
-            RGB rgb = new RGB();
+            RedGreenBlue rgb = new RedGreenBlue();
 
             byte[] widthBytes = BitConverter.GetBytes(width);
             byte[] heightBytes = BitConverter.GetBytes(height);
@@ -153,9 +153,9 @@ namespace Dct.UI
                 for (int x = 0; x < width; x++)
                 {
                     rgb = ConvertYCbCrToRgb(1, 2, 3);
-                    bytesToSave[y * width + x + byteOffset++] = (byte)rgb.getRed();
-                    bytesToSave[y * width + x + byteOffset++] = (byte)rgb.getGreen();
-                    bytesToSave[y * width + x + byteOffset] = (byte)rgb.getBlue();
+                    bytesToSave[y * width + x + byteOffset++] = (byte)rgb.Red;
+                    bytesToSave[y * width + x + byteOffset++] = (byte)rgb.Green;
+                    bytesToSave[y * width + x + byteOffset] = (byte)rgb.Blue;
                     //Debug.WriteLine(uncompressed.GetPixel(x,y));
                     //Debug.WriteLine(testBitmap.GetPixel(x,y));
                 }
@@ -168,7 +168,7 @@ namespace Dct.UI
         {
             YCbCr[,] ycbcrPixels = new YCbCr[uncompressed.Width, uncompressed.Height];
             Color pixel;
-            RGB rgb = new RGB();
+            RedGreenBlue rgb = new RedGreenBlue();
 
             for (int y = 0; y < ycbcrPixels.GetLength(1); y++)
             {
@@ -176,9 +176,9 @@ namespace Dct.UI
                 {
                     if (x / 2 >= Cb.GetLength(0) || y / 2 >= Cb.GetLength(1)) continue;
                     pixel = uncompressed.GetPixel(x, y);
-                    rgb.setRed(pixel.R);
-                    rgb.setGreen(pixel.G);
-                    rgb.setBlue(pixel.B);
+                    rgb.Red = pixel.R;
+                    rgb.Green = pixel.G;
+                    rgb.Blue = pixel.B;
                     ycbcrPixels[x, y] = ConvertRgbToYCbCr(rgb);
                     Y[x, y] = ycbcrPixels[x, y].getY();
                     Cb[x / 2, y / 2] = ycbcrPixels[x, y].getCb();
@@ -237,14 +237,14 @@ namespace Dct.UI
             int height = Y.GetLength(1);
             Bitmap bitmap = new Bitmap(width, height);
             Color color;
-            RGB rgb = new RGB();
+            RedGreenBlue rgb = new RedGreenBlue();
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
                     if (x / 2 >= Cb.GetLength(0) || y / 2 >= Cb.GetLength(1)) continue;
                     rgb = ConvertYCbCrToRgb(Y[x, y], Cb[x / 2, y / 2], Cr[x / 2, y / 2]);
-                    color = Color.FromArgb(rgb.getRed(), rgb.getGreen(), rgb.getBlue());
+                    color = Color.FromArgb(rgb.Red, rgb.Green, rgb.Blue);
                     bitmap.SetPixel(x, y, color);
                 }
             }
@@ -252,25 +252,25 @@ namespace Dct.UI
         }
 
         /*Converts RGB pixel to YCbCr*/
-        YCbCr ConvertRgbToYCbCr(RGB rgb)
+        YCbCr ConvertRgbToYCbCr(RedGreenBlue rgb)
         {
             YCbCr output = new YCbCr();
-            output.setY(16 + (rgb.getRed() * 0.257 + rgb.getGreen() * 0.504 + rgb.getBlue() * 0.098));
-            output.setCb(128 + (rgb.getRed() * -0.148 + rgb.getGreen() * -0.291 + rgb.getBlue() * 0.439));
-            output.setCr(128 + (rgb.getRed() * 0.439 + rgb.getGreen() * -0.368 + rgb.getBlue() * -0.071));
+            output.setY(16 + (rgb.Red * 0.257 + rgb.Green * 0.504 + rgb.Blue * 0.098));
+            output.setCb(128 + (rgb.Red * -0.148 + rgb.Green * -0.291 + rgb.Blue * 0.439));
+            output.setCr(128 + (rgb.Red * 0.439 + rgb.Green * -0.368 + rgb.Blue * -0.071));
             return output;
         }
 
         /*Converts YCbCr to RGB*/
-        RGB ConvertYCbCrToRgb(double curY, double curCb, double curCr)
+        RedGreenBlue ConvertYCbCrToRgb(double curY, double curCb, double curCr)
         {
-            RGB output = new RGB();
+            RedGreenBlue output = new RedGreenBlue();
             double red = (curY - 16) * 1.164 + (curCb - 128) * 0 + (curCr - 128) * 1.596;
-            output.setRed((int)Math.Round(red));
+            output.Red = (short)Math.Round(red);
             double green = (curY - 16) * 1.164 + (curCb - 128) * -0.392 + (curCr - 128) * -0.813;
-            output.setGreen((int)green);
+            output.Green = (short)green;
             double blue = (curY - 16) * 1.164 + (curCb - 128) * 2.017 + (curCr - 128) * 0;
-            output.setBlue((int)blue);
+            output.Blue = (short)blue;
             return output;
         }
 

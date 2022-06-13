@@ -10,7 +10,7 @@ namespace Dct.Core
             byte[] bytesToSave = new byte[data.Length + 8];
 
             int byteOffset = 0;
-            RGB rgb = new RGB();
+            RedGreenBlue rgb = new RedGreenBlue();
 
             byte[] widthBytes = BitConverter.GetBytes(width);
             byte[] heightBytes = BitConverter.GetBytes(height);
@@ -53,7 +53,7 @@ namespace Dct.Core
             byte[] bytesToSave = new byte[data.Length + 8];
 
             int byteOffset = 0;
-            RGB rgb = new RGB();
+            RedGreenBlue rgb = new RedGreenBlue();
 
             byte[] widthBytes = BitConverter.GetBytes(width);
             byte[] heightBytes = BitConverter.GetBytes(height);

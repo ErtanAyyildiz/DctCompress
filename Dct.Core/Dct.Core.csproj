@@ -46,7 +46,7 @@
     <Compile Include="DCT.cs" />
     <Compile Include="FileFunctions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RGB.cs" />
+    <Compile Include="RedGreenBlue.cs" />
     <Compile Include="VideoCompression.cs" />
     <Compile Include="YCbCr.cs" />
   </ItemGroup>
