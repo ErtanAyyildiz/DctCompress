@@ -179,7 +179,7 @@ namespace Dct.Core
 
       
         /*
-        Puts an array of blocks back together as a single double array, ready for conversion to image
+        Görüntüye dönüşmeye hazır bir dizi bloğu tek bir çift dizi olarak bir araya getirir.
             */
         public double[,] DoubleArrayFromBlocks(Block[,] blocks, int width, int height)
         {
@@ -494,7 +494,7 @@ namespace Dct.Core
         }
 
         /*
-        Decodes an array of saved data
+        Kaydedilmiş dizi'yi çözer.
             */
         public void DecodeSaveArray(byte[] byteData)
         {
