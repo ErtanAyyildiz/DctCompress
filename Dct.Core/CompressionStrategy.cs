@@ -2,6 +2,10 @@
 {
     public sealed class CompressionStrategy
     {
+        /*
+         * Strategy pattern: Bağımlılıkları azaltmak için (Dependency Inversion Principle) kullanılan bir
+         * OO tasarım desenidir.
+         */
         private readonly ICompressor compressor;
         public ICompressor Compressor => compressor;
 

@@ -15,9 +15,8 @@ namespace Dct.UI
 
         void CmsiSaveImage_Click(object sender, System.EventArgs e)
         {
-            SaveFileDialog save = new SaveFileDialog() { FileName = "compressed.jpeg" };
-            DialogResult dialog = save.ShowDialog();
-            if (dialog == DialogResult.OK)
+            var save = new SaveFileDialog() { FileName = "compressed.jpeg" };
+            if (save.ShowDialog() == DialogResult.OK)
             {
                 pictureBox1.Image.Save(save.FileName, ImageFormat.Jpeg);
                 Process.Start(save.FileName);
