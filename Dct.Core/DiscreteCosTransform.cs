@@ -102,9 +102,9 @@ namespace Dct.Core
                         for (int u = 0; u < 8; u++)
                         {
 
-                            YdctBlocks[x, y][u, v] = ApplyDCTFormula(Yblocks[x, y], u, v);
-                            CbdctBlocks[x, y][u, v] = ApplyDCTFormula(Cbblocks[x, y], u, v);
-                            CrdctBlocks[x, y][u, v] = ApplyDCTFormula(Crblocks[x, y], u, v);
+                            YdctBlocks[x, y][u, v] = DCTFormul(Yblocks[x, y], u, v);
+                            CbdctBlocks[x, y][u, v] = DCTFormul(Cbblocks[x, y], u, v);
+                            CrdctBlocks[x, y][u, v] = DCTFormul(Crblocks[x, y], u, v);
 
                         }
                         //Debug.WriteLine("");
@@ -184,7 +184,7 @@ namespace Dct.Core
         /*
         Puts an array of blocks back together as a single double array, ready for conversion to image
             */
-        public double[,] MakeDoubleArrayFromBlocks(Block[,] blocks, int width, int height)
+        public double[,] DoubleArrayFromBlocks(Block[,] blocks, int width, int height)
         {
             double[,] image = new double[width, height];
 
@@ -207,7 +207,7 @@ namespace Dct.Core
         /*
         Applies DCT formula to a block, and returns the post DCT pixel
             */
-        public double ApplyDCTFormula(Block input, double u, double v)
+        public double DCTFormul(Block input, double u, double v)
         {
             double sum = 0, firstCos, secondCos;
 
@@ -669,9 +669,9 @@ namespace Dct.Core
             Cbblocks = CbpostBlocks;
             Crblocks = CrpostBlocks;
 
-            YImage = MakeDoubleArrayFromBlocks(YpostBlocks, width, height);
-            CbImage = MakeDoubleArrayFromBlocks(CbpostBlocks, width, height);
-            CrImage = MakeDoubleArrayFromBlocks(CrpostBlocks, width, height);
+            YImage = DoubleArrayFromBlocks(YpostBlocks, width, height);
+            CbImage = DoubleArrayFromBlocks(CbpostBlocks, width, height);
+            CrImage = DoubleArrayFromBlocks(CrpostBlocks, width, height);
         }
 
         /*
