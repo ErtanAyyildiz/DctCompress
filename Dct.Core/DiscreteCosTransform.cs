@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
 
 namespace Dct.Core
 {
-    public class DCT
+    public class DiscreteCosTransform : ICompressor
     {
-        double[,] Y, Cb, Cr;
-        public double[,] YImage, CbImage, CrImage;
+        private double[,] cbImage;
         public Block[,] Yblocks, Cbblocks, Crblocks;
-
+        private double[,] yImage;
+        private double[,] crImage;
         readonly int[,] luminance = {
             { 16, 11, 10, 16, 24, 40, 51, 61 },
             { 12, 12, 14, 19, 26, 58, 60, 55 },
@@ -32,11 +30,35 @@ namespace Dct.Core
             { 99, 99, 99, 99, 99, 99, 99, 99 },
             { 99, 99, 99, 99, 99, 99, 99, 99 }};
 
+        public double[,] YImage { get => yImage; set => yImage = value; }
+        public double[,] CrImage { get => crImage; set => crImage = value; }
+        public double[,] CbImage { get => cbImage; set => cbImage = value; }
 
-        public void runDCT()
+        public Block GenerateBlock(double[,] fullSize, int xPosition, int yPosition)
         {
-            int horizontalBlocks = (int)Math.Ceiling((double)Y.GetLength(0) / 8);//amount of full 8x8 blocks will fit horizontally
-            int verticalBlocks = (int)Math.Ceiling((double)Y.GetLength(1) / 8);//amount of full 8x8 blocks will fit vertically
+            Block block = new Block();
+
+            for (int y = yPosition; y < yPosition + 8; y++)
+            {
+                for (int x = xPosition; x < xPosition + 8; x++)
+                {
+                    if (x < fullSize.GetLength(0) && y < fullSize.GetLength(1))
+                    {
+                        block[x - xPosition, y - yPosition] = fullSize[x, y];
+                    }
+                    else
+                    {
+                        block[x - xPosition, y - yPosition] = 0.0;
+                    }
+                }
+            }
+            return block;
+        }
+
+        public void Compress()
+        {
+            int horizontalBlocks = (int)Math.Ceiling((double)YImage.GetLength(0) / 8);//amount of full 8x8 blocks will fit horizontally
+            int verticalBlocks = (int)Math.Ceiling((double)YImage.GetLength(1) / 8);//amount of full 8x8 blocks will fit vertically
 
             Block[,] Yblocks = new Block[horizontalBlocks, verticalBlocks];
             Block[,] YdctBlocks = new Block[horizontalBlocks, verticalBlocks];
@@ -59,13 +81,13 @@ namespace Dct.Core
             {
                 for (int x = 0; x < horizontalBlocks; x++)
                 {
-                    Yblocks[x, y] = generateBlock(Y, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    Yblocks[x, y] = GenerateBlock(YImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
                     YdctBlocks[x, y] = new Block();
 
-                    Cbblocks[x, y] = generateBlock(Cb, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    Cbblocks[x, y] = GenerateBlock(CbImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
                     CbdctBlocks[x, y] = new Block();
 
-                    Crblocks[x, y] = generateBlock(Cr, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    Crblocks[x, y] = GenerateBlock(CrImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
                     CrdctBlocks[x, y] = new Block();
 
                 }
@@ -127,39 +149,6 @@ namespace Dct.Core
                     {
                         CrSaveBuffer.Add(Crencoded[i]);
                     }
-
-
-                    if (x == 0 && y == 0)
-                    {
-                        for (int i = 0; i < Yzig.GetLength(0); i++)
-                        //for (int i = 0; i < Cbzig.GetLength(0); i++)
-                        {
-                            Debug.Write((Yzig[i]) + ",");
-                            //Debug.Write((Cbzig[i]) + ",");
-                        }
-
-                        Debug.WriteLine("");
-                        Debug.WriteLine("-------------------------------------");
-
-
-
-                        for (int i = 0; i < Yencoded.GetLength(0); i++)
-                        //for (int i = 0; i < Cbencoded.GetLength(0); i++)
-                        {
-                            Debug.Write((Yencoded[i]) + ",");
-                            //Debug.Write((Cbencoded[i]) + ",");
-                        }
-
-                        Debug.WriteLine("");
-                        Debug.WriteLine("-------------------------------------");
-                    }
-
-                    //saveFile();
-                    //--------------------------------------UNDO COMPRESSION---------------------------------------------------------------------
-
-
-
-
                 }//x
             }//y
 
@@ -183,34 +172,15 @@ namespace Dct.Core
                 toSave[position++] = CrSaveBuffer[i];
             }
 
-            FileFunctions.SaveCompressed(toSave, Y.GetLength(0), Y.GetLength(1));
+            FileFunctions.SaveCompressed(toSave, YImage.GetLength(0), YImage.GetLength(1));
             byte[] savedData = FileFunctions.OpenCompressed("TestFile.cmpr");
-            decodeSaveArray(savedData);
+            DecodeSaveArray(savedData);
         }
+
 
         /*
         Generates an 8x8 block from a position 
             */
-        public Block generateBlock(double[,] fullSize, int xPosition, int yPosition)
-        {
-            Block block = new Block();
-
-            for (int y = yPosition; y < yPosition + 8; y++)
-            {
-                for (int x = xPosition; x < xPosition + 8; x++)
-                {
-                    if (x < fullSize.GetLength(0) && y < fullSize.GetLength(1))
-                    {
-                        block[x - xPosition, y - yPosition] = fullSize[x, y];
-                    }
-                    else
-                    {
-                        block[x - xPosition, y - yPosition] = 0.0;
-                    }
-                }
-            }
-            return block;
-        }
 
         /*
         Puts an array of blocks back together as a single double array, ready for conversion to image
@@ -290,38 +260,7 @@ namespace Dct.Core
         /*
         Creates a bitmap from an array of 8*8 blocks.
             */
-        public Bitmap createBitmapFromBlocks(Block[,] blocks, int width, int height)
-        {
-            int vert = blocks.GetLength(0);
-            int horiz = blocks.GetLength(1);
-            var image = new Bitmap(width, height);
-
-            for (int y = 0; y < horiz; y++)
-            {
-                for (int x = 0; x < vert; x++)
-                {
-                    for (int blockY = 0; blockY < 8; blockY++)
-                    {
-                        for (int blockX = 0; blockX < 8; blockX++)
-                        {
-                            if (y * 8 + blockY >= height) 
-                                continue;
-
-                            if (x * 8 + blockX >= width) 
-                                continue;
-
-                            image.SetPixel(x * 8 + blockX, y * 8 + blockY, Color.FromArgb(
-                                (int)blocks[x, y][blockX, blockY],
-                                (int)blocks[x, y][blockX, blockY], 
-                                (int)blocks[x, y][blockX, blockY])
-                                );
-                        }
-                    }
-                }
-            }
-
-            return image;
-        }
+       
 
         /*
         Divides the values of the block by a passed quantization table, and returns the outcome
@@ -423,7 +362,7 @@ namespace Dct.Core
         /*
         undoes zig zag on an int array, and outputs the original 8x8 block
             */
-        public Block undoZigZag(int[] array)
+        public Block UndoZigZag(int[] array)
         {
             Block block = new Block();
 
@@ -533,7 +472,7 @@ namespace Dct.Core
         /*
         undoes run length encoding, extending the compressed array
             */
-        public int[] undoRunlengthEncoding(int[] array)
+        public int[] UndoRunlengthEncoding(int[] array)
         {
             int[] output = new int[64];
             int pos = 0;
@@ -565,7 +504,7 @@ namespace Dct.Core
         /*
         Decodes an array of saved data
             */
-        public void decodeSaveArray(byte[] byteData)
+        public void DecodeSaveArray(byte[] byteData)
         {
             int[] data = new int[byteData.Length];
 
@@ -651,20 +590,14 @@ namespace Dct.Core
                     //currentRunType = 1;
                 }
             }
-            Debug.WriteLine("y count:" + Yencoded.Count);
-            Debug.WriteLine("Cb count:" + Cbencoded.Count());
-            Debug.WriteLine("Cr count:" + Crencoded.Count());
 
-            int horizontalBlocks = (int)Math.Ceiling((double)width / 8);//amount of full 8x8 blocks will fit horizontally
-            int verticalBlocks = (int)Math.Ceiling((double)height / 8);//amount of full 8x8 blocks will fit vertically
-
-            decompress(Yencoded, Cbencoded, Crencoded, width, height);
+            Decompress(Yencoded, Cbencoded, Crencoded, width, height);
         }
 
         /*
         Undo each of the compression steps
             */
-        public void decompress(List<List<int>> YencodedList, List<List<int>> CbencodedList, List<List<int>> CrencodedList, int width, int height)
+        public void Decompress(List<List<int>> YencodedList, List<List<int>> CbencodedList, List<List<int>> CrencodedList, int width, int height)
         {
             int horizontalBlocks = (int)Math.Ceiling((double)width / 8);//amount of full 8x8 blocks will fit horizontally
             int verticalBlocks = (int)Math.Ceiling((double)height / 8);//amount of full 8x8 blocks will fit vertically
@@ -695,33 +628,19 @@ namespace Dct.Core
             {
                 for (int x = 0; x < horizontalBlocks; x++)
                 {
-                    Yencoded = convert2dListToArray(YencodedList, verticalBlocks * y + x);
-                    Cbencoded = convert2dListToArray(CbencodedList, verticalBlocks * y + x);
-                    Crencoded = convert2dListToArray(CrencodedList, verticalBlocks * y + x);
+                    Yencoded = Convert2dListToArray(YencodedList, verticalBlocks * y + x);
+                    Cbencoded = Convert2dListToArray(CbencodedList, verticalBlocks * y + x);
+                    Crencoded = Convert2dListToArray(CrencodedList, verticalBlocks * y + x);
 
-                    Yzig = undoRunlengthEncoding(Yencoded);
-                    Cbzig = undoRunlengthEncoding(Cbencoded);
-                    Crzig = undoRunlengthEncoding(Crencoded);
+                    Yzig = UndoRunlengthEncoding(Yencoded);
+                    Cbzig = UndoRunlengthEncoding(Cbencoded);
+                    Crzig = UndoRunlengthEncoding(Crencoded);
 
-
-                    if (x == 0 && y == 0)
-                    {
-                        for (int i = 0; i < Yzig.GetLength(0); i++)
-                        {
-                            Debug.Write((Yzig[i]) + ",");
-                            //Debug.Write((Cbzig[i]) + ",");
-                        }
-
-                        Debug.WriteLine("");
-                        Debug.WriteLine("-------------------------------------");
-                    }
-
-                    YdctBlocks[x, y] = undoZigZag(Yzig);
-                    CbdctBlocks[x, y] = undoZigZag(Cbzig);
-                    CrdctBlocks[x, y] = undoZigZag(Crzig);
+                    YdctBlocks[x, y] = UndoZigZag(Yzig);
+                    CbdctBlocks[x, y] = UndoZigZag(Cbzig);
+                    CrdctBlocks[x, y] = UndoZigZag(Crzig);
                 }
             }
-
 
             for (int y = 0; y < verticalBlocks; y++)
             {
@@ -747,9 +666,9 @@ namespace Dct.Core
                 }
             }
 
-            this.Yblocks = YpostBlocks;
-            this.Cbblocks = CbpostBlocks;
-            this.Crblocks = CrpostBlocks;
+            Yblocks = YpostBlocks;
+            Cbblocks = CbpostBlocks;
+            Crblocks = CrpostBlocks;
 
             YImage = MakeDoubleArrayFromBlocks(YpostBlocks, width, height);
             CbImage = MakeDoubleArrayFromBlocks(CbpostBlocks, width, height);
@@ -759,7 +678,7 @@ namespace Dct.Core
         /*
         Converts my 2d lists to 1d arrays
             */
-        public int[] convert2dListToArray(List<List<int>> list, int pos)
+        public int[] Convert2dListToArray(List<List<int>> list, int pos)
         {
             List<int> innerList = list[pos];
             int[] array = new int[innerList.Count];
@@ -776,227 +695,14 @@ namespace Dct.Core
         /*
         compresses a pframe
             */
-        public void compressPframe(Block[,] Yblocks, Block[,] Cbblocks, Block[,] Crblocks, Point[,] vectors, int width, int height)
-        {
-            int horizontalBlocks = Yblocks.GetLength(0);
-            int verticalBlocks = Yblocks.GetLength(1);
-
-            Block[,] YdctBlocks = new Block[horizontalBlocks, verticalBlocks];
-            Block[,] CbdctBlocks = new Block[horizontalBlocks, verticalBlocks];
-            Block[,] CrdctBlocks = new Block[horizontalBlocks, verticalBlocks];
-
-            List<int> YSaveBuffer = new List<int>();
-            List<int> CbSaveBuffer = new List<int>();
-            List<int> CrSaveBuffer = new List<int>();
-
-            for (int y = 0; y < verticalBlocks; y++)
-            {
-                for (int x = 0; x < horizontalBlocks; x++)
-                {
-                    //Debug.WriteLine("-----------Starting------------");
-                    YdctBlocks[x, y] = new Block();
-                    CbdctBlocks[x, y] = new Block();
-                    CrdctBlocks[x, y] = new Block();
-
-                    for (int v = 0; v < 8; v++)
-                    {
-                        for (int u = 0; u < 8; u++)
-                        {
-                            YdctBlocks[x, y][u, v] = ApplyDCTFormula(Yblocks[x, y], u, v);
-                            CbdctBlocks[x, y][u, v] = ApplyDCTFormula(Cbblocks[x, y], u, v);
-                            CrdctBlocks[x, y][u, v] = ApplyDCTFormula(Crblocks[x, y], u, v);
-                        }
-                    }
-
-                    YdctBlocks[x, y] = ApplyQuantization(YdctBlocks[x, y], luminance);
-                    CbdctBlocks[x, y] = ApplyQuantization(CbdctBlocks[x, y], chrominance);
-                    CrdctBlocks[x, y] = ApplyQuantization(CrdctBlocks[x, y], chrominance);
-
-
-                    int[] Yzig = ApplyZigZag(YdctBlocks[x, y]);
-                    int[] Yencoded = RunLengthEncode(Yzig);
-                    YSaveBuffer.Add(Yencoded.Length);
-                    for (int i = 0; i < Yencoded.Length; i++)
-                    {
-                        YSaveBuffer.Add(Yencoded[i]);
-                    }
-
-                    int[] Cbzig = ApplyZigZag(CbdctBlocks[x, y]);
-                    int[] Crzig = ApplyZigZag(CrdctBlocks[x, y]);
-
-                    int[] Cbencoded = RunLengthEncode(Cbzig);
-                    int[] Crencoded = RunLengthEncode(Crzig);
-
-                    //first save the length of the run length, so we know how far to read later
-                    CbSaveBuffer.Add(Cbencoded.Length);
-                    for (int i = 0; i < Cbencoded.Length; i++)
-                    {
-                        CbSaveBuffer.Add(Cbencoded[i]);
-                    }
-                    CrSaveBuffer.Add(Crencoded.Length);
-                    for (int i = 0; i < Crencoded.Length; i++)
-                    {
-                        CrSaveBuffer.Add(Crencoded[i]);
-                    }
-
-
-                    if (x == 0 && y == 0)
-                    {
-                        for (int i = 0; i < Yzig.GetLength(0); i++)
-                        //for (int i = 0; i < Cbzig.GetLength(0); i++)
-                        {
-                            Debug.Write((Yzig[i]) + ",");
-                            //Debug.Write((Cbzig[i]) + ",");
-                        }
-
-                        Debug.WriteLine("");
-                        Debug.WriteLine("-------------------------------------");
-
-
-
-                        for (int i = 0; i < Yencoded.GetLength(0); i++)
-                        //for (int i = 0; i < Cbencoded.GetLength(0); i++)
-                        {
-                            Debug.Write((Yencoded[i]) + ",");
-                            //Debug.Write((Cbencoded[i]) + ",");
-                        }
-
-                        Debug.WriteLine("");
-                        Debug.WriteLine("-------------------------------------");
-                    }
-
-                    //saveFile();
-                    //--------------------------------------UNDO COMPRESSION---------------------------------------------------------------------
-
-
-
-
-                }//x
-            }//y            
-
-            int position = 0;
-            int totalCount = YSaveBuffer.Count + CbSaveBuffer.Count + CrSaveBuffer.Count;
-            int[] toSave = new int[totalCount + 2];
-            for (int i = 0; i < YSaveBuffer.Count; i++)
-            {
-                toSave[position++] = YSaveBuffer[i];
-            }
-            toSave[position++] = 127;
-            for (int i = 0; i < CbSaveBuffer.Count; i++)
-            {
-                toSave[position++] = CbSaveBuffer[i];
-            }
-            toSave[position++] = 127;
-            for (int i = 0; i < CrSaveBuffer.Count; i++)
-            {
-                toSave[position++] = CrSaveBuffer[i];
-            }
-
-            FileFunctions.SaveCompressed(toSave, width, height);
-            decodeSavePFrameArray(toSave, width, height);
-            //decompress(Yencoded, Cbencoded, Crencoded, width, height);
-        }
-
-        public void openSavedFile(string filename)
+        public void OpenSavedFile(string filename)
         {
             byte[] savedData = FileFunctions.OpenCompressed(filename);
-            decodeSaveArray(savedData);
+            DecodeSaveArray(savedData);
         }
 
         /*
         Decodes an array of saved data
             */
-        public void decodeSavePFrameArray(int[] data, int width, int height)
-        {
-            //int[] data = new int[byteData.Length];
-
-            //for (int i = 0; i < byteData.Length; i++)
-            // {
-            //    data[i] = (sbyte)byteData[i];
-            // }
-
-            int currentRunType = 1;
-            int currentCount = 0;
-            List<int> currentRun;
-
-            List<List<int>> Yencoded = new List<List<int>>();
-
-            List<List<int>> Cbencoded = new List<List<int>>();
-
-            List<List<int>> Crencoded = new List<List<int>>();
-
-            for (int i = 0; i < data.Length; i++)
-            {
-                if (currentRunType == 1)//if its a Y run
-                {
-                    currentCount = data[i];
-                    currentRun = new List<int>();
-                    for (int j = 0; j < currentCount; j++)
-                    {
-                        i++;
-                        currentRun.Add(data[i]);
-                    }
-                    Yencoded.Add(currentRun);
-                    if (data[i + 1] == 127)
-                    {
-                        currentRunType++;
-                        i++;
-                    }
-                }
-                else if (currentRunType == 2)
-                {//if Cb run
-                    currentCount = data[i];
-                    currentRun = new List<int>();
-                    for (int j = 0; j < currentCount; j++)
-                    {
-                        i++;
-                        currentRun.Add(data[i]);
-                    }
-                    Cbencoded.Add(currentRun);
-                    if (data[i + 1] == 127)
-                    {
-                        currentRunType++;
-                        i++;
-                    }
-                }
-                else if (currentRunType == 3)
-                {//if Cr run
-                    currentCount = data[i];
-                    currentRun = new List<int>();
-                    for (int j = 0; j < currentCount; j++)
-                    {
-                        i++;
-                        currentRun.Add(data[i]);
-                    }
-                    Crencoded.Add(currentRun);
-                    //currentRunType = 1;
-                }
-            }
-            Debug.WriteLine("y count:" + Yencoded.Count);
-            Debug.WriteLine("Cb count:" + Cbencoded.Count());
-            Debug.WriteLine("Cr count:" + Crencoded.Count());
-
-            int horizontalBlocks = (int)Math.Ceiling((double)width / 8);//amount of full 8x8 blocks will fit horizontally
-            int verticalBlocks = (int)Math.Ceiling((double)height / 8);//amount of full 8x8 blocks will fit vertically
-
-            decompress(Yencoded, Cbencoded, Crencoded, width, height);
-
-
-        }
-
-        public void setY(double[,] Y)
-        {
-            this.Y = Y;
-        }
-
-        public void setCb(double[,] Cb)
-        {
-            this.Cb = Cb;
-        }
-
-        public void setCr(double[,] Cr)
-        {
-            this.Cr = Cr;
-        }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using Dct.Core;
 using System;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -11,6 +9,12 @@ namespace Dct.UI
 {
     public partial class Compression : Form
     {
+        public CompressionStrategy CompressionStrategy { get; } =
+            new CompressionStrategy(
+                new DiscreteCosTransform()
+                );
+
+
         Bitmap uncompressedBitmap;
         Bitmap uncompressedSecondFrame;
 
@@ -51,17 +55,19 @@ namespace Dct.UI
 
             if (ofd.ShowDialog().Equals(DialogResult.OK))
             {
-                DCT dct = new DCT();
-                dct.openSavedFile(ofd.FileName);
+                CompressionStrategy.OpenSavedFile(ofd.FileName);
+                Bitmap image = GenerateRgbBitmapFromYCbCr(
+                    CompressionStrategy.YImage, 
+                    CompressionStrategy.CbImage, 
+                    CompressionStrategy.CrImage
+                    );
 
-                Bitmap finalImage = GenerateRgbBitmapFromYCbCr(dct.YImage, dct.CbImage, dct.CrImage);
-                finalImage.Save("FinalJPEG.bmp", ImageFormat.Bmp);
-                pictureBox2.Image = finalImage;
+                image.Save("FinalJPEG.bmp", ImageFormat.Bmp);
+                pictureBox2.Image = image;
                 pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
                 //uncompressedBitmap = new Bitmap(openFileDialog1.FileName);
             }
         }
-
 
 
         void CompressImageToolStripMenuItem_Click(object sender, EventArgs e)
@@ -86,28 +92,31 @@ namespace Dct.UI
             int width = uncompressed.Width;
             int height = uncompressed.Height;
 
-            double[,] Y = new double[width, height];
-            double[,] Cb = new double[width / 2, height / 2];
-            double[,] Cr = new double[width / 2, height / 2];
+            double[,] y = new double[width, height];
+            double[,] cb = new double[width / 2, height / 2];
+            double[,] cr = new double[width / 2, height / 2];
 
-            GenerateYcbcrBitmap(uncompressed, ref Y, ref Cb, ref Cr);
-            SetYImage(Y, Cb, Cr);//Sets the images to display on screen
+            GenerateYcbcrBitmap(
+                uncompressed, 
+                ref y,
+                ref cb,
+                ref cr);
 
-            Bitmap testBitmap = new Bitmap(width, height);
-            testBitmap = GenerateRgbBitmapFromYCbCr(Y, Cb, Cr);
-            testBitmap.Save("SubsampledImage.bmp", ImageFormat.Bmp);
+            SetYImage(y, cb, cr);//Sets the images to display on screen
 
-            DCT dct = new DCT();
-            dct.setY(Y);
-            dct.setCb(Cb);
-            dct.setCr(Cr);
+            Bitmap bmp = GenerateRgbBitmapFromYCbCr(y, cb, cr);
+            bmp.Save("SubsampledImage.bmp", ImageFormat.Bmp);
 
-            dct.runDCT();
+            CompressionStrategy.YImage = y;
+            CompressionStrategy.CrImage = cr;
+            CompressionStrategy.CbImage = cb;
+            CompressionStrategy.Compress();
 
-            System.Windows.Forms.MessageBox.Show("Compression complete!");
+            MessageBox.Show("Dikkat!",
+                "Sıkıştırma operasyonu tamamlandı!",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
         }
-        //------------------------------------------------------------------------------------------------------------------
-
 
         /**
         Old code for saving to custom fileType.  not useable anymore.
