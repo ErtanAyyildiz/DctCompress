@@ -225,7 +225,7 @@ namespace Dct.Core
         }
 
         /*
-        Applies inverse DCT formula and returns the image pixel
+        Ters DCT Formülünü uygular ve görüntünün pikselini döndürür
             */
         public double IDCTFormula(Block input, double i, double j)
         {
@@ -253,13 +253,9 @@ namespace Dct.Core
             return 1;
         }
 
-        /*
-        Creates a bitmap from an array of 8*8 blocks.
-            */
-
 
         /*
-        Divides the values of the block by a passed quantization table, and returns the outcome
+        Bloğun değerlerini Quantization(niceleme) tablosuna böler ve sonucu döndürür.
             */
         public Block ApplyQuantization(Block block, int[,] table)
         {
@@ -276,7 +272,7 @@ namespace Dct.Core
         }
 
         /*
-        Multiplies the values of a quantized block by a quantization table to undo quantization. returns the outcome
+        Quantization(niceleme) geri almak için Quantization uygulanmış blokların değerlerini çarpar ve sonucu döndürür
             */
         public Block RemoveQuantization(Block block, int[,] table)
         {
