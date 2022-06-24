@@ -34,12 +34,24 @@
 
         public void Compress()
         {
+            Compressor.IsMultithreadingOperation = false;
             Compressor.Compress();
+        }
+
+        public void CompressAsync()
+        {
+            Compressor.IsMultithreadingOperation = true;
+            Compressor.CompressAsync();
         }
 
         public void OpenSavedFile(string file)
         {
             Compressor.OpenSavedFile(file);
+        }
+
+        public void SetMultiThreadOperations(bool flag)
+        {
+            Compressor.IsMultithreadingOperation = flag;
         }
     }
 }

@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormCompression));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.pbOriginal = new System.Windows.Forms.PictureBox();
             this.btnOpenOriginal = new System.Windows.Forms.Button();
@@ -42,6 +41,7 @@
             this.btnCompress = new System.Windows.Forms.Button();
             this.btnOpenCompressed = new System.Windows.Forms.Button();
             this.btnAbout = new System.Windows.Forms.Button();
+            this.cbMultiThread = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbOriginal)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -63,9 +63,9 @@
             // 
             // pbOriginal
             // 
+            this.pbOriginal.BackColor = System.Drawing.Color.White;
             this.pbOriginal.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pbOriginal.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pbOriginal.Image = ((System.Drawing.Image)(resources.GetObject("pbOriginal.Image")));
             this.pbOriginal.Location = new System.Drawing.Point(3, 19);
             this.pbOriginal.Name = "pbOriginal";
             this.pbOriginal.Size = new System.Drawing.Size(344, 381);
@@ -195,11 +195,23 @@
             this.btnAbout.UseVisualStyleBackColor = true;
             this.btnAbout.Click += new System.EventHandler(this.BtnAbout_Click);
             // 
+            // cbMultiThread
+            // 
+            this.cbMultiThread.AutoSize = true;
+            this.cbMultiThread.Location = new System.Drawing.Point(546, 432);
+            this.cbMultiThread.Name = "cbMultiThread";
+            this.cbMultiThread.Size = new System.Drawing.Size(38, 17);
+            this.cbMultiThread.TabIndex = 6;
+            this.cbMultiThread.Text = "Mt";
+            this.cbMultiThread.UseVisualStyleBackColor = true;
+            this.cbMultiThread.CheckedChanged += new System.EventHandler(this.CbMultiThread_CheckedChanged);
+            // 
             // FormCompression
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(989, 470);
+            this.Controls.Add(this.cbMultiThread);
             this.Controls.Add(this.btnAbout);
             this.Controls.Add(this.btnOpenCompressed);
             this.Controls.Add(this.btnCompress);
@@ -219,6 +231,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -237,5 +250,6 @@
         private System.Windows.Forms.Button btnCompress;
         private System.Windows.Forms.Button btnOpenCompressed;
         private System.Windows.Forms.Button btnAbout;
+        private System.Windows.Forms.CheckBox cbMultiThread;
     }
 }

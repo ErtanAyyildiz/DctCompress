@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Dct.Core
 {
@@ -32,6 +33,7 @@ namespace Dct.Core
         public double[,] YImage { get => yImage; set => yImage = value; }
         public double[,] CrImage { get => crImage; set => crImage = value; }
         public double[,] CbImage { get => cbImage; set => cbImage = value; }
+        public bool IsMultithreadingOperation { get; set; }
 
         public Block CreateBlock(double[,] fullSize, int xPosition, int yPosition)
         {
@@ -53,6 +55,156 @@ namespace Dct.Core
             }
             return block;
         }
+
+        List<int> YSaveBuffer = new List<int>();
+        List<int> CbSaveBuffer = new List<int>();
+        List<int> CrSaveBuffer = new List<int>();
+
+        void Clear()
+        {
+            YSaveBuffer = new List<int>();
+            CbSaveBuffer = new List<int>();
+            CrSaveBuffer = new List<int>();
+        }
+
+        public void CompressAsync()
+        {
+            Clear();
+            int total = (int)Math.Ceiling((double)YImage.GetLength(0) / 8);
+            int pivot = total / 2;
+
+            Thread thread1 = new Thread(new ThreadStart(() =>
+            {
+                Compress(0, pivot);
+            }));
+
+            Thread thread2 = new Thread(new ThreadStart(() =>
+            {
+                Compress(pivot + 1, total);
+            }));
+
+            thread1.Start();
+            thread2.Start();
+
+            while (thread1.IsAlive || thread2.IsAlive)
+            {
+            }
+
+            int position = 0;
+            int totalCount = YSaveBuffer.Count + CbSaveBuffer.Count + CrSaveBuffer.Count;
+            int[] toSave = new int[totalCount + 2];
+            for (int i = 0; i < YSaveBuffer.Count; i++)
+            {
+                toSave[position++] = YSaveBuffer[i];
+            }
+            toSave[position++] = 127;
+            for (int i = 0; i < CbSaveBuffer.Count; i++)
+            {
+                toSave[position++] = CbSaveBuffer[i];
+            }
+            toSave[position++] = 127;
+            for (int i = 0; i < CrSaveBuffer.Count; i++)
+            {
+                toSave[position++] = CrSaveBuffer[i];
+            }
+
+            FileFunctions.Save(toSave, YImage.GetLength(0), YImage.GetLength(1));
+            byte[] savedData = FileFunctions.OpenCompressed(FileFunctions.FILE_NAME);
+            DecodeSaveArray(savedData);
+        }
+
+
+        public void Compress(int horizontalBlocks, int verticalBlocks)
+        {
+
+            Block[,] Yblocks = new Block[horizontalBlocks, verticalBlocks];
+            Block[,] YdctBlocks = new Block[horizontalBlocks, verticalBlocks];
+
+
+            Block[,] Cbblocks = new Block[horizontalBlocks, verticalBlocks];
+            Block[,] CbdctBlocks = new Block[horizontalBlocks, verticalBlocks];
+
+
+            Block[,] Crblocks = new Block[horizontalBlocks, verticalBlocks];
+            Block[,] CrdctBlocks = new Block[horizontalBlocks, verticalBlocks];
+
+
+
+
+
+            for (int y = 0; y < verticalBlocks; y++)
+            {
+                for (int x = 0; x < horizontalBlocks; x++)
+                {
+                    Yblocks[x, y] = CreateBlock(YImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    YdctBlocks[x, y] = new Block();
+
+                    Cbblocks[x, y] = CreateBlock(CbImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    CbdctBlocks[x, y] = new Block();
+
+                    Crblocks[x, y] = CreateBlock(CrImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    CrdctBlocks[x, y] = new Block();
+                }
+            }
+
+            for (int y = 0; y < verticalBlocks; y++)
+            {
+                for (int x = 0; x < horizontalBlocks; x++)
+                {
+
+                    for (int v = 0; v < 8; v++)
+                    {
+                        for (int u = 0; u < 8; u++)
+                        {
+
+                            YdctBlocks[x, y][u, v] = DCTFormul(Yblocks[x, y], u, v);
+                            CbdctBlocks[x, y][u, v] = DCTFormul(Cbblocks[x, y], u, v);
+                            CrdctBlocks[x, y][u, v] = DCTFormul(Crblocks[x, y], u, v);
+                        }
+                    }
+
+                    YdctBlocks[x, y] = ApplyQuantization(YdctBlocks[x, y], luminance);
+                    CbdctBlocks[x, y] = ApplyQuantization(CbdctBlocks[x, y], chrominance);
+                    CrdctBlocks[x, y] = ApplyQuantization(CrdctBlocks[x, y], chrominance);
+
+                    int[] Yzig = ApplyZigZag(YdctBlocks[x, y]);
+
+
+                    int[] Yencoded = LengthEncode(Yzig);
+                    YSaveBuffer.Add(Yencoded.Length);
+                    for (int i = 0; i < Yencoded.Length; i++)
+                    {
+                        YSaveBuffer.Add(Yencoded[i]);
+                    }
+
+                    int[] Cbzig = new int[128];
+                    int[] Crzig = new int[128];
+
+                    int[] Cbencoded = new int[128];
+                    int[] Crencoded = new int[128];
+
+
+                    Cbzig = ApplyZigZag(CbdctBlocks[x, y]);
+                    Crzig = ApplyZigZag(CrdctBlocks[x, y]);
+
+                    Cbencoded = LengthEncode(Cbzig);
+                    Crencoded = LengthEncode(Crzig);
+
+                    //first save the length of the run length, so we know how far to read later
+                    CbSaveBuffer.Add(Cbencoded.Length);
+                    for (int i = 0; i < Cbencoded.Length; i++)
+                    {
+                        CbSaveBuffer.Add(Cbencoded[i]);
+                    }
+                    CrSaveBuffer.Add(Crencoded.Length);
+                    for (int i = 0; i < Crencoded.Length; i++)
+                    {
+                        CrSaveBuffer.Add(Crencoded[i]);
+                    }
+                }//x
+            }//y    
+        }
+
 
         public void Compress()
         {
@@ -96,7 +248,7 @@ namespace Dct.Core
             {
                 for (int x = 0; x < horizontalBlocks; x++)
                 {
-                    
+
                     for (int v = 0; v < 8; v++)
                     {
                         for (int u = 0; u < 8; u++)
@@ -177,7 +329,7 @@ namespace Dct.Core
         }
 
 
-      
+
         /*
         Görüntüye dönüşmeye hazır bir dizi bloğu tek bir çift dizi olarak bir araya getirir.
             */
@@ -620,9 +772,18 @@ namespace Dct.Core
             {
                 for (int x = 0; x < horizontalBlocks; x++)
                 {
-                    Yencoded = Convert2dListToArray(YencodedList, verticalBlocks * y + x);
-                    Cbencoded = Convert2dListToArray(CbencodedList, verticalBlocks * y + x);
-                    Crencoded = Convert2dListToArray(CrencodedList, verticalBlocks * y + x);
+                    if (!IsMultithreadingOperation)
+                    {
+                        Yencoded = Convert2dListToArray(YencodedList, verticalBlocks * y + x);
+                        Cbencoded = Convert2dListToArray(CbencodedList, verticalBlocks * y + x);
+                        Crencoded = Convert2dListToArray(CrencodedList, verticalBlocks * y + x);
+                    }
+                    else
+                    {
+                        Yencoded = Convert2dListToArrayTasking(YencodedList, verticalBlocks * y + x);
+                        Cbencoded = Convert2dListToArrayTasking(CbencodedList, verticalBlocks * y + x);
+                        Crencoded = Convert2dListToArrayTasking(CrencodedList, verticalBlocks * y + x);
+                    }
 
                     Yzig = UndoRunlengthEncoding(Yencoded);
                     Cbzig = UndoRunlengthEncoding(Cbencoded);
@@ -647,12 +808,8 @@ namespace Dct.Core
                         for (int u = 0; u < 8; u++)
                         {
                             YpostBlocks[x, y][u, v] = IDCTFormula(YdctBlocks[x, y], u, v);
-
-                            //if (x % 2 == 0 && y % 2 == 0)
-                            //{
                             CbpostBlocks[x, y][u, v] = IDCTFormula(CbdctBlocks[x, y], u, v);
                             CrpostBlocks[x, y][u, v] = IDCTFormula(CrdctBlocks[x, y], u, v);
-                            //}
                         }
                     }
                 }
@@ -683,13 +840,31 @@ namespace Dct.Core
 
             return array;
         }
-      
+
+        public int[] Convert2dListToArrayTasking(List<List<int>> list, int pos)
+        {
+            pos = pos == 0 ? pos : pos - 1;
+            if (pos >= list.Count)
+            {
+                return Convert2dListToArrayTasking(list, pos - 1);
+            }
+
+
+            List<int> innerList = list[pos];
+            int[] array = new int[innerList.Count];
+
+            for (int i = 0; i < innerList.Count; i++)
+            {
+                array[i] = innerList[i];
+            }
+
+            return array;
+        }
+
         public void OpenSavedFile(string filename)
         {
             byte[] savedData = FileFunctions.OpenCompressed(filename);
             DecodeSaveArray(savedData);
         }
-
-   
     }
 }

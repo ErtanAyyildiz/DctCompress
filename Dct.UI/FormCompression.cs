@@ -1,5 +1,6 @@
 ﻿using Dct.Core;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -113,10 +114,28 @@ namespace Dct.UI
             CompressionStrategy.YImage = y;
             CompressionStrategy.CrImage = cr;
             CompressionStrategy.CbImage = cb;
-            CompressionStrategy.Compress();
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            if (cbMultiThread.Checked)
+            {
+                CompressionStrategy.CompressAsync();
+            }
+            else
+            {
+                CompressionStrategy.Compress();
+            }
+
+            long duration = sw.ElapsedMilliseconds;
+
+            string message = string.Format("Sıkıştırma operasyonu tamamlandı...\n" +
+                "{0} süre: {1} ms.",
+                 cbMultiThread.Checked ? "Multi-thread" : String.Empty,
+                 duration);
 
             MessageBox.Show(
-                "Sıkıştırma operasyonu tamamlandı...",
+                message,
                 "Dikkat!",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information
@@ -216,6 +235,11 @@ namespace Dct.UI
         {
             About about = new About();
             about.ShowDialog();
+        }
+
+        void CbMultiThread_CheckedChanged(object sender, EventArgs e)
+        {
+            CompressionStrategy.SetMultiThreadOperations(cbMultiThread.Checked);
         }
     }
 }
