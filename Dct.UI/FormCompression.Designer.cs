@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormCompression));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.pbOriginal = new System.Windows.Forms.PictureBox();
             this.btnOpenOriginal = new System.Windows.Forms.Button();
@@ -63,9 +62,9 @@
             // 
             // pbOriginal
             // 
+            this.pbOriginal.BackColor = System.Drawing.Color.White;
             this.pbOriginal.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pbOriginal.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pbOriginal.Image = ((System.Drawing.Image)(resources.GetObject("pbOriginal.Image")));
             this.pbOriginal.Location = new System.Drawing.Point(3, 19);
             this.pbOriginal.Name = "pbOriginal";
             this.pbOriginal.Size = new System.Drawing.Size(344, 381);
