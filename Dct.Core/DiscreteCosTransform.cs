@@ -232,13 +232,13 @@ namespace Dct.Core
             {
                 for (int x = 0; x < horizontalBlocks; x++)
                 {
-                    Yblocks[x, y] = CreateBlock(YImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    Yblocks[x, y] = CreateBlock(YImage, x * 8, y * 8);
                     YdctBlocks[x, y] = new Block();
 
-                    Cbblocks[x, y] = CreateBlock(CbImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    Cbblocks[x, y] = CreateBlock(CbImage, x * 8, y * 8);
                     CbdctBlocks[x, y] = new Block();
 
-                    Crblocks[x, y] = CreateBlock(CrImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    Crblocks[x, y] = CreateBlock(CrImage, x * 8, y * 8); 
                     CrdctBlocks[x, y] = new Block();
 
                 }
@@ -289,7 +289,6 @@ namespace Dct.Core
                     Cbencoded = LengthEncode(Cbzig);
                     Crencoded = LengthEncode(Crzig);
 
-                    //first save the length of the run length, so we know how far to read later
                     CbSaveBuffer.Add(Cbencoded.Length);
                     for (int i = 0; i < Cbencoded.Length; i++)
                     {
@@ -367,7 +366,6 @@ namespace Dct.Core
                     firstCos = Math.Cos((2 * i + 1) * u * Math.PI / 16);
                     secondCos = Math.Cos((2 * j + 1) * v * Math.PI / 16);
                     sum += firstCos * secondCos * input[(int)i, (int)j];
-                    //if (i < 4 && j < 4) sum += firstCos * secondCos * input.get((int)i, (int)j);
                 }
             }
 
@@ -689,7 +687,7 @@ namespace Dct.Core
 
             for (int i = 8; i < data.Length; i++)
             {
-                if (currentRunType == 1)//if its a Y run
+                if (currentRunType == 1)
                 {
                     currentCount = data[i];
                     currentRun = new List<int>();
@@ -706,7 +704,7 @@ namespace Dct.Core
                     }
                 }
                 else if (currentRunType == 2)
-                {//if Cb run
+                {
                     currentCount = data[i];
                     currentRun = new List<int>();
                     for (int j = 0; j < currentCount; j++)
@@ -722,7 +720,7 @@ namespace Dct.Core
                     }
                 }
                 else if (currentRunType == 3)
-                {//if Cr run
+                {
                     currentCount = data[i];
                     currentRun = new List<int>();
                     for (int j = 0; j < currentCount; j++)
