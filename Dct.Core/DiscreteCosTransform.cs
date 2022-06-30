@@ -136,13 +136,13 @@ namespace Dct.Core
             {
                 for (int x = 0; x < horizontalBlocks; x++)
                 {
-                    Yblocks[x, y] = CreateBlock(YImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    Yblocks[x, y] = CreateBlock(YImage, x * 8, y * 8);
                     YdctBlocks[x, y] = new Block();
 
-                    Cbblocks[x, y] = CreateBlock(CbImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    Cbblocks[x, y] = CreateBlock(CbImage, x * 8, y * 8);
                     CbdctBlocks[x, y] = new Block();
 
-                    Crblocks[x, y] = CreateBlock(CrImage, x * 8, y * 8);//which block, multiplied by block offset (8) 
+                    Crblocks[x, y] = CreateBlock(CrImage, x * 8, y * 8);
                     CrdctBlocks[x, y] = new Block();
                 }
             }
@@ -190,7 +190,7 @@ namespace Dct.Core
                     Cbencoded = LengthEncode(Cbzig);
                     Crencoded = LengthEncode(Crzig);
 
-                    //first save the length of the run length, so we know how far to read later
+                  
                     CbSaveBuffer.Add(Cbencoded.Length);
                     for (int i = 0; i < Cbencoded.Length; i++)
                     {
@@ -201,8 +201,8 @@ namespace Dct.Core
                     {
                         CrSaveBuffer.Add(Crencoded[i]);
                     }
-                }//x
-            }//y    
+                }
+            } 
         }
 
 
@@ -299,8 +299,8 @@ namespace Dct.Core
                     {
                         CrSaveBuffer.Add(Crencoded[i]);
                     }
-                }//x
-            }//y
+                }
+            }
 
             Debug.WriteLine("File length = " + toSaveBufferPos);
 
@@ -329,9 +329,7 @@ namespace Dct.Core
 
 
 
-        /*
-        Görüntüye dönüşmeye hazır bir dizi bloğu tek bir çift dizi olarak bir araya getirir.
-            */
+      
         public double[,] DoubleArrayFromBlocks(Block[,] blocks, int width, int height)
         {
             double[,] image = new double[width, height];
@@ -352,9 +350,7 @@ namespace Dct.Core
             return image;
         }
 
-        /*
-        DCT Formülünü bloklara uygular. DCT Sonrası pikselleri döndürür.
-            */
+  
         public double DCTFormul(Block input, double u, double v)
         {
             double sum = 0, firstCos, secondCos;
@@ -374,9 +370,6 @@ namespace Dct.Core
             return sum;
         }
 
-        /*
-        Ters DCT Formülünü uygular ve görüntünün pikselini döndürür
-            */
         public double IDCTFormula(Block input, double i, double j)
         {
             double sum = 0, firstCos, secondCos;
@@ -394,9 +387,6 @@ namespace Dct.Core
             return sum;
         }
 
-        /*
-        C() function as defined in DCT
-            */
         public double c(double input)
         {
             if (input == 0) return 1 / Math.Sqrt(2);
@@ -404,9 +394,6 @@ namespace Dct.Core
         }
 
 
-        /*
-        Bloğun değerlerini Quantization(niceleme) tablosuna böler ve sonucu döndürür.
-            */
         public Block ApplyQuantization(Block block, int[,] table)
         {
             Block quantizedBlock = new Block();
@@ -421,9 +408,6 @@ namespace Dct.Core
             return quantizedBlock;
         }
 
-        /*
-        Quantization(niceleme) geri almak için Quantization uygulanmış blokların değerlerini çarpar ve sonucu döndürür
-            */
         public Block RemovQuantization(Block block, int[,] table)
         {
             var buffer = new Block();
@@ -437,9 +421,7 @@ namespace Dct.Core
             return buffer;
         }
 
-        /*
-        Bloğu 1 boyutlu diziye dönüştürür.
-            */
+ 
         public int[] ApplyZigZag(Block block)
         {
             int[] zigzag = new int[64];
@@ -501,9 +483,6 @@ namespace Dct.Core
             return zigzag;
         }
 
-        /*
-        int dizisindeki zig zag'ı geri alır, Orjinal 8x8 Bloğunu verir
-            */
         public Block UndoZigZag(int[] array)
         {
             Block block = new Block();
@@ -567,9 +546,6 @@ namespace Dct.Core
             return block;
         }
 
-        /*
-        çalıştırma uzunluğunu kodlar Quantization(niceleme) value 255'i kullanır.
-            */
         public int[] LengthEncode(int[] array)
         {
             int[] buffer = new int[256];
@@ -611,9 +587,6 @@ namespace Dct.Core
             return output;
         }
 
-        /*
-        Sıkıştırılmış diziyi çözer.
-            */
         public int[] UndoRunlengthEncoding(int[] array)
         {
             int[] output = new int[64];
@@ -643,9 +616,7 @@ namespace Dct.Core
             return output;
         }
 
-        /*
-        Kaydedilmiş dizi'yi çözer.
-            */
+ 
         public void DecodeSaveArray(byte[] byteData)
         {
             int[] data = new int[byteData.Length];
@@ -729,16 +700,13 @@ namespace Dct.Core
                         currentRun.Add(data[i]);
                     }
                     Crencoded.Add(currentRun);
-                    //currentRunType = 1;
+                
                 }
             }
 
             Decompress(Yencoded, Cbencoded, Crencoded, width, height);
         }
 
-        /*
-        Sıkıştırılmış veriyi çözer.
-            */
         public void Decompress(List<List<int>> YencodedList, List<List<int>> CbencodedList, List<List<int>> CrencodedList, int width, int height)
         {
             int horizontalBlocks = (int)Math.Ceiling((double)width / 8);//8x8 blokları yatay'da sığdırma.
@@ -822,10 +790,7 @@ namespace Dct.Core
             CrImage = DoubleArrayFromBlocks(CrpostBlocks, width, height);
         }
 
-        /*
-        2D listeleri 1D dizilere dönüştürür
-
-            */
+ 
         public int[] Convert2dListToArray(List<List<int>> list, int pos)
         {
             List<int> innerList = list[pos];

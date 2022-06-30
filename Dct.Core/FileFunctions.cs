@@ -25,13 +25,13 @@ namespace Dct.Core
                 Array.Reverse(hBytes);
             }
 
-            //Saving image width to beginning of byte array.
+
             for (var i = 0; i < wBytes.Length; i++)
             {
                 totalSize[offset++] = wBytes[i];
             }
 
-            //saving image Height to beginning of byte array.
+
             for (var i = 0; i < hBytes.Length; i++)
             {
                 totalSize[offset++] = hBytes[i];

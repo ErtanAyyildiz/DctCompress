@@ -43,7 +43,7 @@ namespace Dct.UI
 
         }
 
-        /*Converts RGB pixel to YCbCr*/
+    
         YCbCr ConvertRgbToYCbCr(RedGreenBlue rgb)
         {
             YCbCr output = new YCbCr();
@@ -53,7 +53,6 @@ namespace Dct.UI
             return output;
         }
 
-        /*Converts YCbCr to RGB*/
         RedGreenBlue ConvertYCbCrToRgb(double curY, double curCb, double curCr)
         {
             RedGreenBlue output = new RedGreenBlue();
@@ -106,7 +105,7 @@ namespace Dct.UI
                 ref cb,
                 ref cr);
 
-            SetYImage(y, cb, cr);//Sets the images to display on screen
+            SetYImage(y, cb, cr);
 
             Bitmap bmp = GenerateRgbBitmapFromYCbCr(y, cb, cr);
             bmp.Save("SubsampledImage.bmp", ImageFormat.Bmp);
@@ -185,7 +184,7 @@ namespace Dct.UI
             pictureBox5.SizeMode = PictureBoxSizeMode.Zoom;
         }
 
-        /*convert YCbCr values to a RGB bitmap*/
+    
         Bitmap GenerateRgbBitmapFromYCbCr(double[,] Y, double[,] Cb, double[,] Cr)
         {
             int width = Y.GetLength(0);
