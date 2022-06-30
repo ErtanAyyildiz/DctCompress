@@ -177,14 +177,18 @@ namespace Dct.UI
             }
             pictureBox3.Image = bitY;
             pictureBox3.SizeMode = PictureBoxSizeMode.Zoom;
-            bitCb.Save("CbImage.bmp", ImageFormat.Bmp);
+            bitY.Save("CyImage.bmp", ImageFormat.Bmp);
+
             pictureBox4.Image = bitCb;
             pictureBox4.SizeMode = PictureBoxSizeMode.Zoom;
+            bitCb.Save("CbImage.bmp", ImageFormat.Bmp);
+
             pictureBox5.Image = bitCr;
             pictureBox5.SizeMode = PictureBoxSizeMode.Zoom;
+            bitCr.Save("CrImage.bmp", ImageFormat.Bmp);
         }
 
-    
+
         Bitmap GenerateRgbBitmapFromYCbCr(double[,] Y, double[,] Cb, double[,] Cr)
         {
             int width = Y.GetLength(0);
